@@ -1,4 +1,4 @@
-import rules, bot
+import bot
 from random import choice
 
 class ByteSized(BoopBot):
