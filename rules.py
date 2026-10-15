@@ -54,7 +54,7 @@ class Board:
       
     return result
   
-  def place(self, move): # Move tuples are expressed as (piece, index, move_type) with piece as -2,-1,1,2 and index 0-35
+  def play(self, move): # Move tuples are expressed as (piece, index, move_type) with piece as -2,-1,1,2 and index 0-35
     piece = move[0]
     row, col = to_coord(move[1])
     player = 1 if (piece > 0) - (piece < 0) == -1 else 2
