@@ -1,10 +1,10 @@
 ## Purrfessor: A Boop-Playing Engine ##
 
-Contains a rules.py file that you can use to build your own algorithm around.
+GNU license. Below are laid the tools included within.
+
+This was created for the purposes of hosting a friendly tournament between multiple of the same bot.
 
 ### rules.py ###
-
-GNU license. Below are laid the tools included within.
 
 `class IllegalMove`: a custom class created specifically to handle moves that cannot exist/cannot be made.
 
@@ -23,3 +23,7 @@ The object also contains a `hands` property - two two-item lists for counting ki
 `play(self,move)`: takes one move tuple (piece, index, type) and executes that move, including booping and removing to hand but excluding growth (due to factors laid out below).
 
 `get_grows(self)` and `grow(self, indices)`: called separate from the play() function due to the potential choosing between two grow actions.
+
+### bot.py ###
+
+All bots created for said competition must be subclasses of the simple BoopBot abstract class included here so the competition can be run properly.
