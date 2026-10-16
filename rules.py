@@ -41,9 +41,9 @@ class Board:
     for i in self.board:
       for j in i:
         if j == 1:
-          result += "🐈"
+          result += "🔸"
         elif j == -1:
-          result += "🐈‍⬛"
+          result += "🔹"
         elif j == 2:
           result += "🟧"
         elif j == -2:
