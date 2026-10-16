@@ -1,6 +1,7 @@
 from bot import BoopBot
-from rules import Board, get_lines
+from rules import Board, get_lines, to_coord
 from random import choice
+from copy import deepcopy
 
 class ByteSized(BoopBot):
 
@@ -10,12 +11,12 @@ class ByteSized(BoopBot):
         results = []
 
         for move in moves:
-            state = board.play(move)
+            state = deepcopy(board.play(move))
             value = 0
             for line in lines:
-                a = board.board[to_index(line[0])[0]][to_index(line[0])[1]]
-                b = board.board[to_index(line[1])[0]][to_index(line[1])[1]]
-                c = board.board[to_index(line[2])[0]][to_index(line[2])[1]]
+                a = state.board[to_coord(line[0])[0]][to_coord(line[0])[1]]
+                b = state.board[to_coord(line[1])[0]][to_coord(line[1])[1]]
+                c = state.board[to_coord(line[2])[0]][to_coord(line[2])[1]]
 
                 if (a == b and b == c) and a != 0:
                     if b > 1 and player == 2:
@@ -46,17 +47,17 @@ class ByteSized(BoopBot):
                 else:
                     pass
             
-            result.append((value, move))
+            results.append((value, move))
         
-        return sorted(result)[len(result) - 1][1]
+        return sorted(results)[len(results) - 1][1]
 
     
     def give_grow(self, grows, board, player): #Finds first eligible grow
 
         for grow in grows:
 
-            if board.board[to_index(grow[0])[0]][to_index(grow[0])[1]] > 0 and player == 2:
+            if board.board[to_coord(grow[0])[0]][to_coord(grow[0])[1]] > 0 and player == 2:
                 return grow
 
-            elif board.board[to_index(grow[0])[0]][to_index(grow[0])[1]] < 0 and player == 1:
+            elif board.board[to_coord(grow[0])[0]][to_coord(grow[0])[1]] < 0 and player == 1:
                 return grow
