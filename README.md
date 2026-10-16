@@ -18,9 +18,9 @@ The object also contains a `hands` property - two two-item lists for counting ki
 
 `__str__(self)`: Allows for printing out the board using emojis! 🟩 for `0`, 🐈 for `1`, 🐈‍⬛ for `-1`, 🟧 for `2`, and 🟦 for `-2`. Prints in a 6x6 grid.
 
-`get_legals(self,player)`: running this on a Board object will give a list of three-tuple outputs with (piece, index, type) for every legal move - piece indicates the played/removed piece, index indicates where on the board it goes, and type is either "place" or "remove" (NOTE: all legal moves will be of the same type).
+`get_legals(self,player)`: running this on a Board object will give a list of three-tuple outputs with `(piece, index, type)` for every legal move - piece indicates the played/removed piece, index indicates where on the board it goes, and type is either "place" or "remove" (NOTE: all legal moves will be of the same type).
 
-`play(self,move)`: takes one move tuple (piece, index, type) and executes that move, including booping and removing to hand but excluding growth (due to factors laid out below).
+`play(self,move)`: takes one move tuple `(piece, index, type)` and executes that move, including booping and removing to hand but excluding growth (due to factors laid out below).
 
 `get_grows(self)` and `grow(self, indices)`: called separate from the play() function due to the potential choosing between two grow actions.
 
