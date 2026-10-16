@@ -52,7 +52,8 @@ class ByteSized(BoopBot):
             
             results.append((value, move))
         
-        return sorted(results)[len(results) - 1][1]
+        best = max(v for v, _ in results)
+        return choice([m for v, m in results if v == best])
 
     
     def give_grow(self, grows, board, player): #Finds first eligible grow
