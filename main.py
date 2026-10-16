@@ -52,7 +52,12 @@ def run_game(blue, orange):
         grows = own_grows(board, player)     # only the mover grows, and only once per turn
         if grows:
             try:
-                board.grow(bots[player].give_grow(grows, copy.deepcopy(board), player))
+                choice = bots[player].give_grow(grows, copy.deepcopy(board), player)
+                choice = tuple(sorted(choice))   # accept lists / any index order
+                if choice not in grows:
+                    print(f"{COLORS[player]} made an illegal grow: {choice}")
+                    return 3 - player
+                board.grow(choice)
             except Exception as e:
                 print(f"{COLORS[player]} crashed while growing: {e!r}")
                 return 3 - player
