@@ -11,7 +11,8 @@ class ByteSized(BoopBot):
         results = []
 
         for move in moves:
-            state = deepcopy(board.play(move))
+            state = deepcopy(board)
+            state.play(move)
             value = 0
             for line in lines:
                 a = state.board[to_coord(line[0])[0]][to_coord(line[0])[1]]
@@ -23,12 +24,14 @@ class ByteSized(BoopBot):
                         value += 10000000000
                     elif b < -1 and player == 1:
                         value += 10000000000
+                    elif (b < -1 and player != 1) or (b > 1 and player != 2):
+                        value -= 10000000000
                     elif b > 0 and player == 2:
                         value += 4
                     elif b < 0 and player == 1:
                         value += 4
                     else:
-                        value -= 2
+                        value -= 4
 
                 elif (a == b or b == c) and b != 0:
                     if b > 0 and player == 2:
@@ -61,3 +64,5 @@ class ByteSized(BoopBot):
 
             elif board.board[to_coord(grow[0])[0]][to_coord(grow[0])[1]] < 0 and player == 1:
                 return grow
+        
+        return grows[0]
