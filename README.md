@@ -16,7 +16,7 @@ Coordinates on the board can either be expressed as an index integer `0` through
 
 The object also contains a `hands` property - two two-item lists for counting kitten then cat numbers per player [blue, orange].
 
-`__str__(self)`: Allows for printing out the board using emojis! 🟩 for `0`, 🐈 for `1`, 🐈‍⬛ for `-1`, 🟧 for `2`, and 🟦 for `-2`. Prints in a 6x6 grid.
+`__str__(self)`: Allows for printing out the board using emojis! 🟩 for `0`, 🔸 for `1`, 🔹 for `-1`, 🟧 for `2`, and 🟦 for `-2`. Prints in a 6x6 grid.
 
 `get_legals(self,player)`: running this on a Board object will give a list of three-tuple outputs with `(piece, index, type)` for every legal move - piece indicates the played/removed piece, index indicates where on the board it goes, and type is either "place" or "remove" (NOTE: all legal moves will be of the same type).
 
