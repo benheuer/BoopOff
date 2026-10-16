@@ -1,12 +1,12 @@
-import bot
+from bot import BoopBot
 from random import choice
 
-class ByteSized(BoopBot):
+class Random(BoopBot):
 
-    def give_move(moves, board):
+    def give_move(moves, board, player):
 
         return choice(moves)
     
-    def give_grow(grows, board):
+    def give_grow(grows, board, player):
 
         return choice(grows)
