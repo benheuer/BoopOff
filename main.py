@@ -43,7 +43,7 @@ def describe_grow(board, player, grow):
     kind, where = grow
     if kind == "grow":
         squares = ", ".join(str(to_coord(i)) for i in where)
-        return f"{COLORS[player]} graduates three kittens into cats at {squares}"
+        return f"{COLORS[player]} removes three pieces and graduates any kittens to cats at {squares}"
     row, col = to_coord(where)
     return f"{COLORS[player]} removes the {PIECES[board.board[row][col]]} at row {row}, col {col} back to hand"
 
@@ -62,7 +62,7 @@ def run_game(blue, orange):
         try:
             legals = board.get_legals(player)
         except IllegalMove:
-            print(f"{COLORS[player]} has nothing to play and no way to remove a piece. Ending as a draw.")
+            print(f"{COLORS[player]} has nothing to play. Ending as a draw.")
             return 0
 
         try:
