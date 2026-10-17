@@ -129,8 +129,6 @@ class Board:
       if len(check) == 1 and abs(next(iter(check))) == 1:
         result.append(("grow", line))
 
-    # A player with no pieces left in hand must retire one of their kittens
-    # (it goes back to their hand as a cat). Kittens only: a kitten is +-1.
     for player in [1,2]:
       kitten = -1 if player == 1 else 1
       hand = self.hands[player - 1]
@@ -167,11 +165,11 @@ class Board:
       removed = self.board[row][col]
 
       if abs(removed) != 1:
-        raise IllegalMove("There is no kitten to retire at that index")
+        raise IllegalMove("There is no kitten to remove at that index")
 
       owner = 0 if removed < 0 else 1
       if self.hands[owner][0] + self.hands[owner][1] != 0:
-        raise IllegalMove("A kitten can only be retired when there are no pieces left in hand")
+        raise IllegalMove("A kitten can only be removed when there are no pieces left in hand")
 
       self.hands[owner][1] += 1
 
