@@ -7,7 +7,7 @@ The important idea is: try our moves, then check what the opponent could do.
 import copy
 
 from bot import BoopBot
-from rules import get_lines, to_coord
+from rules import IllegalMove, get_lines, to_coord
 
 
 # Winning must be worth much more than any normal board position.
@@ -64,7 +64,7 @@ class CatGPT(BoopBot):
         return best_move
 
     def give_grow(self, grows, board, player):
-        """Choose which group of three kittens to turn into cats."""
+        """Choose a line of kittens to grow, or one kitten to retire."""
         if not grows:
             raise ValueError("CatGPT needs at least one legal growth.")
 
@@ -98,11 +98,17 @@ class CatGPT(BoopBot):
         We choose high scores on our turns. The opponent chooses low scores.
         The two bounds let us skip choices that cannot change the decision.
         """
-        if turns_left == 0 or board.is_terminal():
+        if board.is_terminal():
             return self._score_position(board, our_player)
 
-        moves = board.get_legals(next_player)
-        if not moves:
+        try:
+            moves = board.get_legals(next_player)
+        except IllegalMove:
+            # The runner ends an unplayable turn as a draw. Check this even
+            # at the search limit, before estimating a nonterminal position.
+            return 0
+
+        if turns_left == 0 or not moves:
             return self._score_position(board, our_player)
 
         our_turn = next_player == our_player
@@ -136,7 +142,7 @@ class CatGPT(BoopBot):
         return best_score
 
     def _finish_move(self, board, move, player):
-        """Return the possible boards after a complete move, including growth."""
+        """Finish a placement, then apply one growth or retirement if needed."""
         next_board = copy.deepcopy(board)
         next_board.play(move)
 
@@ -144,21 +150,37 @@ class CatGPT(BoopBot):
         if next_board.is_terminal():
             return [next_board]
 
-        # Only the player who just moved gets to grow.
+        # get_grows() includes both players' choices. Only the mover acts,
+        # and a line of three kittens takes priority over retiring one kitten.
         kitten = -1 if player == 1 else 1
-        growth_choices = []
+        line_growths = []
+        retirements = []
 
-        for grow in next_board.get_grows():
-            row, column = to_coord(grow[0])
-            if next_board.board[row][column] == kitten:
-                growth_choices.append(grow)
+        for choice in next_board.get_grows():
+            kind, where = choice
+            if kind == "grow":
+                index = where[0]
+            else:
+                index = where
+            row, column = to_coord(index)
 
+            if next_board.board[row][column] != kitten:
+                continue
+            if kind == "grow":
+                line_growths.append(choice)
+            else:
+                retirements.append(choice)
+
+        if line_growths:
+            growth_choices = line_growths
+        else:
+            growth_choices = retirements
         if not growth_choices:
             return [next_board]
 
         possible_boards = []
 
-        # Grow once, trying each choice on a separate copy.
+        # Apply one growth or retirement, trying each choice on its own copy.
         for grow in growth_choices:
             grown_board = copy.deepcopy(next_board)
             grown_board.grow(grow)
