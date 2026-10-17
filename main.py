@@ -10,7 +10,7 @@ BOTS = {
     "Meowddled": Meowddled,
     "CatGPT": CatGPT,
 }
-DELAY = 1.5
+DELAY = 1
 TURN_CAP = 400
 
 COLORS = {1: "Blue", 2: "Orange"}
