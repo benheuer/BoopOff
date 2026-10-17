@@ -125,7 +125,7 @@ class Board:
       check = []
       for index in line:
         row, col = to_coord(index)
-        check.add(self.board[row][col])
+        check.append(self.board[row][col])
       if (check[0] < 0 and check[1] < 0 and check[2] < 0) or (check[0] > 0 and check[1] > 0 and check[2] > 0) :
         result.append(("grow", line))
 
