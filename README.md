@@ -33,5 +33,3 @@ All bots created for said competition must be subclasses of the simple BoopBot a
 `CatGPT` is a bot written by ChatGPT, hence the name. The AI chose the bot to have configurable search depths.
 
 Use `CatGPT(search_depth=3)` to search our move, the opponent's reply, and our following move; `CatGPT()` defaults to depth 2. Growth or retirement stays part of the turn that causes it.
-
-Run the rule compatibility tests with `python3 -B -m unittest discover -v`.
