@@ -60,10 +60,10 @@ class ByteSized(BoopBot):
 
         for grow in grows:
 
-            if board.board[to_coord(grow[0])[0]][to_coord(grow[0])[1]] > 0 and player == 2:
+            if board.board[to_coord(grow[1])[0]][to_coord(grow[1])[1]] > 0 and player == 2:
                 return grow
 
-            elif board.board[to_coord(grow[0])[0]][to_coord(grow[0])[1]] < 0 and player == 1:
+            elif board.board[to_coord(grow[1])[0]][to_coord(grow[1])[1]] < 0 and player == 1:
                 return grow
         
         return grows[0]
