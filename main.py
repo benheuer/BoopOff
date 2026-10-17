@@ -16,11 +16,6 @@ TURN_CAP = 400
 COLORS = {1: "Blue", 2: "Orange"}
 PIECES = {-2: "blue cat", -1: "blue kitten", 1: "orange kitten", 2: "orange cat"}
 
-# Moves are (piece, index) and are only ever placements.
-# Growth choices come from Board.get_grows() and are one of
-#   ("grow", (a, b, c))   three kittens in a line that become cats
-#   ("remove", index)     a forced retirement when the mover has no pieces left in hand
-
 def grow_square(grow):
     """The first board index a growth choice refers to."""
     kind, where = grow
@@ -28,13 +23,13 @@ def grow_square(grow):
 
 def own_grows(board, player):
     sign = -1 if player == 1 else 1
-    lines, retires = [], []
+    lines, removes = [], []
     for g in board.get_grows():
         row, col = to_coord(grow_square(g))
         if board.board[row][col] * sign <= 0:
             continue
-        (lines if g[0] == "grow" else retires).append(g)
-    return lines or retires
+        (lines if g[0] == "grow" else removes).append(g)
+    return lines or removes
 
 def clean_grow(choice):
     """Put a bot's answer in the form get_grows() uses so it can be compared.
@@ -45,13 +40,12 @@ def clean_grow(choice):
     return (kind, where)
 
 def describe_grow(board, player, grow):
-    """Words for a growth choice. Call before the choice is applied."""
     kind, where = grow
     if kind == "grow":
         squares = ", ".join(str(to_coord(i)) for i in where)
         return f"{COLORS[player]} graduates three kittens into cats at {squares}"
     row, col = to_coord(where)
-    return f"{COLORS[player]} retires the {PIECES[board.board[row][col]]} at row {row}, col {col} back to hand"
+    return f"{COLORS[player]} removes the {PIECES[board.board[row][col]]} at row {row}, col {col} back to hand"
 
 def show(board, text):
     print(text)
@@ -60,7 +54,6 @@ def show(board, text):
     time.sleep(DELAY)
 
 def run_game(blue, orange):
-    """Returns 1 (blue wins), 2 (orange wins) or 0 (draw)."""
     board = Board([[0] * 6 for _ in range(6)], [[8, 0], [8, 0]])
     bots = {1: blue, 2: orange}
     show(board, "Start")
@@ -69,7 +62,7 @@ def run_game(blue, orange):
         try:
             legals = board.get_legals(player)
         except IllegalMove:
-            print(f"{COLORS[player]} has nothing to play and no way to retire a piece. Ending as a draw.")
+            print(f"{COLORS[player]} has nothing to play and no way to remove a piece. Ending as a draw.")
             return 0
 
         try:
@@ -90,7 +83,7 @@ def run_game(blue, orange):
         if winner:
             return winner
 
-        grows = own_grows(board, player)     # only the mover grows, and only once per turn
+        grows = own_grows(board, player)
         if grows:
             try:
                 choice = clean_grow(bots[player].give_grow(list(grows), copy.deepcopy(board), player))

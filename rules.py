@@ -122,11 +122,11 @@ class Board:
     result = []
 
     for line in lines:
-      check = set()
+      check = []
       for index in line:
         row, col = to_coord(index)
         check.add(self.board[row][col])
-      if len(check) == 1 and abs(next(iter(check))) == 1:
+      if (check[0] < 0 and check[1] < 0 and check[2] < 0) or (check[0] > 0 and check[1] > 0 and check[2] > 0) :
         result.append(("grow", line))
 
     for player in [1,2]:
