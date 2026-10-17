@@ -31,3 +31,7 @@ All bots created for said competition must be subclasses of the simple BoopBot a
 ### CatGPTBOT.py ###
 
 `CatGPT` is a bot written by ChatGPT, hence the name. The AI chose the bot to have configurable search depths.
+
+### ClawedBOT.py ###
+
+`Clawed` is a bot written by Claude (hence the name). It copies the board into flat lists, then runs iterative-deepening negamax with alpha-beta pruning and a transposition table, searching as deep as it can within `time_limit` seconds per decision (default 1.0). `Clawed(time_limit=None, max_depth=n)` searches exactly `n` plies and is fully deterministic. Its internal copy of the rules is checked against `rules.py` by `test_clawed.py`.
