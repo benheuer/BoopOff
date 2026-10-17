@@ -129,28 +129,33 @@ class Board:
       if len(check) == 1 and abs(next(iter(check))) == 1:
         result.append(("grow", line))
 
+    # A player with no pieces left in hand must retire one of their kittens
+    # (it goes back to their hand as a cat). Kittens only: a kitten is +-1.
     for player in [1,2]:
-      sign = player // (-0.5)
+      kitten = -1 if player == 1 else 1
       hand = self.hands[player - 1]
-      
+
       if hand[0] + hand[1] == 0:
-        for row, col in range(6):
-          pos = self.board[row][col]
-          if ((pos > 0) - (pos < 0)) == sign:
-            result.append(("remove", to_index((row,col))))
-    
+        for row in range(6):
+          for col in range(6):
+            if self.board[row][col] == kitten:
+              result.append(("remove", to_index((row,col))))
+
     return result
-  
-  def grow(self, growth): # takes a three tuple of the chosen grows (type, indecies).
-    
+
+  def grow(self, growth): # takes one of the choices from get_grows(): ("grow", (a,b,c)) or ("remove", index)
+
     if growth[0] == "grow":
-      check = set() 
-      for index in growth[1]:
+      indices = tuple(sorted(growth[1]))
+      if indices not in get_lines():
+        raise IllegalMove("The provided growth action is not a line of three.")
+      check = set()
+      for index in indices:
         row, col = to_coord(index)
         check.add(self.board[row][col])
       if len(check) != 1 or abs(next(iter(check))) != 1:
         raise IllegalMove("The provided growth action is impossible.")
-      for index in indecies:
+      for index in indices:
         row, col = to_coord(index)
         owner = 0 if self.board[row][col] < 0 else 1
         self.hands[owner][1] += 1
@@ -158,16 +163,22 @@ class Board:
 
     elif growth[0] == "remove":
 
-      row, col = to_coord(move[1])
-
-      if self.board[row][col] == 0 :
-        raise IllegalMove("There is no piece to graduate or remove at that index")
-      
+      row, col = to_coord(growth[1])
       removed = self.board[row][col]
+
+      if abs(removed) != 1:
+        raise IllegalMove("There is no kitten to retire at that index")
+
       owner = 0 if removed < 0 else 1
-      self.hands[owner][1] += 1  
-      
+      if self.hands[owner][0] + self.hands[owner][1] != 0:
+        raise IllegalMove("A kitten can only be retired when there are no pieces left in hand")
+
+      self.hands[owner][1] += 1
+
       self.board[row][col] = 0
+
+    else:
+      raise IllegalMove("Unknown growth type.")
 
   def get_legals(self, player):
     if player not in (1, 2):

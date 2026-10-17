@@ -1,6 +1,6 @@
 import copy
 import time
-from rules import Board, to_coord
+from rules import Board, IllegalMove, to_coord
 from ByteSizedBOT import ByteSized
 from MeowddledBOT import Meowddled
 from CatGPTBOT import CatGPT
@@ -10,15 +10,48 @@ BOTS = {
     "Meowddled": Meowddled,
     "CatGPT": CatGPT,
 }
-DELAY = 1.5        
+DELAY = 1.5
 TURN_CAP = 400
 
 COLORS = {1: "Blue", 2: "Orange"}
 PIECES = {-2: "blue cat", -1: "blue kitten", 1: "orange kitten", 2: "orange cat"}
 
+# Moves are (piece, index) and are only ever placements.
+# Growth choices come from Board.get_grows() and are one of
+#   ("grow", (a, b, c))   three kittens in a line that become cats
+#   ("remove", index)     a forced retirement when the mover has no pieces left in hand
+
+def grow_square(grow):
+    """The first board index a growth choice refers to."""
+    kind, where = grow
+    return where[0] if kind == "grow" else where
+
 def own_grows(board, player):
     sign = -1 if player == 1 else 1
-    return [g for g in board.get_grows() if board.board[g[0] // 6][g[0] % 6] * sign > 0]
+    lines, retires = [], []
+    for g in board.get_grows():
+        row, col = to_coord(grow_square(g))
+        if board.board[row][col] * sign <= 0:
+            continue
+        (lines if g[0] == "grow" else retires).append(g)
+    return lines or retires
+
+def clean_grow(choice):
+    """Put a bot's answer in the form get_grows() uses so it can be compared.
+    Lets a bot return a list, or the three indices in any order."""
+    kind, where = choice
+    if kind == "grow":
+        return (kind, tuple(sorted(where)))
+    return (kind, where)
+
+def describe_grow(board, player, grow):
+    """Words for a growth choice. Call before the choice is applied."""
+    kind, where = grow
+    if kind == "grow":
+        squares = ", ".join(str(to_coord(i)) for i in where)
+        return f"{COLORS[player]} graduates three kittens into cats at {squares}"
+    row, col = to_coord(where)
+    return f"{COLORS[player]} retires the {PIECES[board.board[row][col]]} at row {row}, col {col} back to hand"
 
 def show(board, text):
     print(text)
@@ -33,19 +66,25 @@ def run_game(blue, orange):
     show(board, "Start")
     player = 1
     for turn in range(1, TURN_CAP + 1):
-        legals = board.get_legals(player)
         try:
-            move = bots[player].give_move(legals, copy.deepcopy(board), player)
-            if move not in legals:
-                print(f"{COLORS[player]} made an illegal move: {move}")
-                return 3 - player
-            board.play(move)
+            legals = board.get_legals(player)
+        except IllegalMove:
+            print(f"{COLORS[player]} has nothing to play and no way to retire a piece. Ending as a draw.")
+            return 0
+
+        try:
+            move = tuple(bots[player].give_move(list(legals), copy.deepcopy(board), player))
         except Exception as e:
             print(f"{COLORS[player]} crashed: {e!r}")
             return 3 - player
-        piece, index, kind = move
+        if move not in legals:
+            print(f"{COLORS[player]} made an illegal move: {move}")
+            return 3 - player
+        board.play(move)
+
+        piece, index = move
         row, col = to_coord(index)
-        show(board, f"Turn {turn}: {COLORS[player]} {kind}s a {PIECES[piece]} at row {row}, col {col}")
+        show(board, f"Turn {turn}: {COLORS[player]} places a {PIECES[piece]} at row {row}, col {col}")
 
         winner = board.is_terminal()
         if winner:
@@ -54,16 +93,16 @@ def run_game(blue, orange):
         grows = own_grows(board, player)     # only the mover grows, and only once per turn
         if grows:
             try:
-                choice = bots[player].give_grow(grows, copy.deepcopy(board), player)
-                choice = tuple(sorted(choice))   # accept lists / any index order
-                if choice not in grows:
-                    print(f"{COLORS[player]} made an illegal grow: {choice}")
-                    return 3 - player
-                board.grow(choice)
+                choice = clean_grow(bots[player].give_grow(list(grows), copy.deepcopy(board), player))
             except Exception as e:
                 print(f"{COLORS[player]} crashed while growing: {e!r}")
                 return 3 - player
-            show(board, f"{COLORS[player]} grows three kittens into cats")
+            if choice not in grows:
+                print(f"{COLORS[player]} made an illegal grow: {choice}")
+                return 3 - player
+            text = describe_grow(board, player, choice)
+            board.grow(choice)
+            show(board, text)
         player = 3 - player
     return 0
 
@@ -87,7 +126,7 @@ def main():
     orange = choose_bot("Orange")
     print(f"\nBlue: {blue}   vs   Orange: {orange}\n")
     result = run_game(BOTS[blue](), BOTS[orange]())
-    print({1: f"{blue.title()} (blue) wins!", 2: f"{orange.title()} (orange) wins!", 0: "Draw (turn cap reached)."}[result])
+    print({1: f"{blue} (blue) wins!", 2: f"{orange} (orange) wins!", 0: "Draw (turn cap reached)."}[result])
 
 if __name__ == "__main__":
     main()
