@@ -28,6 +28,14 @@ The object also contains a `hands` property - two two-item lists for counting ki
 
 All bots created for said competition must be subclasses of the simple BoopBot abstract class included here so the competition can be run properly.
 
+### MeowddledBOT.py ###
+
+The random bot.
+
+### ByteSizedBOT.py ###
+
+A search depth one bot with really bad heuristics, baseline non-random bot.
+
 ### CatGPTBOT.py ###
 
 `CatGPT` is a bot written by ChatGPT, hence the name. The AI chose the bot to have configurable search depths.
