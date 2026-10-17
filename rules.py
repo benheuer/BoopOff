@@ -143,8 +143,6 @@ class Board:
 
   def grow(self, growth): # takes one of the choices from get_grows(): ("grow", (a,b,c)) or ("remove", index)
 
-    print(growth)
-
     if growth[0] == "grow":
       indices = tuple(sorted(growth[1]))
       if indices not in get_lines():
