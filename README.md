@@ -27,3 +27,55 @@ The object also contains a `hands` property - two two-item lists for counting ki
 ### bot.py ###
 
 All bots created for said competition must be subclasses of the simple BoopBot abstract class included here so the competition can be run properly.
+
+### CatGPTBOT.py ###
+
+`CatGPT` is a bot written with descriptive names and comments for programmers
+who are learning Python. It uses the existing game rules and needs no extra
+packages.
+
+To play against it, run:
+
+```sh
+python3 main.py
+```
+
+Choose **CatGPT** for either Blue or Orange in the bot menu.
+
+Set the search depth when creating a bot:
+
+```python
+from CatGPTBOT import CatGPT
+
+quick_bot = CatGPT(search_depth=1)  # Our move only.
+normal_bot = CatGPT()              # Default: our move and their reply.
+deeper_bot = CatGPT(search_depth=3) # Our move, their reply, our next move.
+```
+
+The depth must be a positive integer. Each level counts one player's turn,
+including any growth from that turn. Growing does not use another level.
+Higher depths examine many more possibilities and take longer to choose
+a move. The game menu creates `CatGPT()`, using the default depth of 2.
+
+With the default depth of 2, CatGPT chooses its moves in three steps:
+
+1. Try each legal move on a copy of the board, including any growth choices.
+2. Check what the opponent could do on their next turn. Assume they will
+   choose the result that is worst for CatGPT.
+3. Pick the move with the best result after that opponent reply.
+
+A win gets a very large score. Other positions earn points for cats,
+pieces near the center, and pairs that could become three in a row.
+These point values are estimates, so searching more turns does not
+guarantee a win.
+
+The bot checks for wins before growth and lets only the moving player
+grow once, matching the game runner. It handles both colors and the
+removal moves needed when a player's hand is empty. It leaves the
+supplied boards and move lists unchanged.
+
+To run the tests:
+
+```sh
+python3 -B -m unittest discover -v
+```
