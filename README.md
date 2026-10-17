@@ -18,11 +18,11 @@ The object also contains a `hands` property - two two-item lists for counting ki
 
 `__str__(self)`: Allows for printing out the board using emojis! 🟩 for `0`, 🔸 for `1`, 🔹 for `-1`, 🟧 for `2`, and 🟦 for `-2`. Prints in a 6x6 grid.
 
-`get_legals(self,player)`: running this on a Board object will give a list of three-tuple outputs with `(piece, index, type)` for every legal move - piece indicates the played/removed piece, index indicates where on the board it goes, and type is either "place" or "remove" (NOTE: all legal moves will be of the same type).
+`get_legals(self,player)`: returns placement moves as `(piece, index)`. If the player has no pieces in hand, it raises `IllegalMove`; the runner treats that unplayable turn as a draw.
 
-`play(self,move)`: takes one move tuple `(piece, index, type)` and executes that move, including booping and removing to hand but excluding growth (due to factors laid out below).
+`play(self,move)`: applies a placement `(piece, index)`, including boops and returning pieces pushed off the board to hand. Growth and retirement happen afterward.
 
-`get_grows(self)` and `grow(self, indices)`: called separate from the play() function due to the potential choosing between two grow actions.
+`get_grows(self)` and `grow(self, growth)`: growth choices are `("grow", (a, b, c))` for three kittens, or `("remove", index)` to retire one kitten into a cat when its owner's hand is empty. Only the mover acts, once per turn, after checking for a win. The runner offers that player's line growths first, and retirement choices only when there are no line growths.
 
 ### bot.py ###
 
@@ -31,3 +31,7 @@ All bots created for said competition must be subclasses of the simple BoopBot a
 ### CatGPTBOT.py ###
 
 `CatGPT` is a bot written by ChatGPT, hence the name. The AI chose the bot to have configurable search depths.
+
+Use `CatGPT(search_depth=3)` to search our move, the opponent's reply, and our following move; `CatGPT()` defaults to depth 2. Growth or retirement stays part of the turn that causes it.
+
+Run the rule compatibility tests with `python3 -B -m unittest discover -v`.
