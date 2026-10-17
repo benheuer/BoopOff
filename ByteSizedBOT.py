@@ -56,14 +56,16 @@ class ByteSized(BoopBot):
         return choice([m for v, m in results if v == best])
 
     
-    def give_grow(self, grows, board, player): #Finds first eligible grow
+    def give_grow(self, grows, board, player): #Finds first eligible grow - doesn't really care (its a weak bot for a reason)
 
         for grow in grows:
+            kind, locale = grow
+            r, c = to_coord(locale[0] if kind == "grow" else locale)
 
-            if board.board[to_coord(grow[1])[0]][to_coord(grow[1])[1]] > 0 and player == 2:
+            if board.board[r][c] > 0 and player == 2:
                 return grow
 
-            elif board.board[to_coord(grow[1])[0]][to_coord(grow[1])[1]] < 0 and player == 1:
+            elif board.board[r][c] < 0 and player == 1:
                 return grow
-        
+
         return grows[0]
