@@ -153,7 +153,7 @@ class Board:
       for index in indices:
         row, col = to_coord(index)
         check.append(self.board[row][col])
-      if not (check[0] < 0 and check[1] < 0 and check[2] < 0) or not (check[0] > 0 and check[1] > 0 and check[2] > 0):
+      if not ((check[0] < 0 and check[1] < 0 and check[2] < 0) or (check[0] > 0 and check[1] > 0 and check[2] > 0)):
         raise IllegalMove("The chosen pieces are not all of the same player.")
       for index in indices:
         row, col = to_coord(index)
