@@ -3,10 +3,12 @@ import time
 from rules import Board, to_coord
 from ByteSizedBOT import ByteSized
 from MeowddledBOT import Meowddled
+from CatGPTBOT import CatGPT
 
 BOTS = {
     "ByteSized": ByteSized,
     "Meowddled": Meowddled,
+    "CatGPT": CatGPT,
 }
 DELAY = 1.5        
 TURN_CAP = 400
