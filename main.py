@@ -1,4 +1,6 @@
+import contextlib
 import copy
+import io
 import time
 from rules import Board, IllegalMove, to_coord
 from ByteSizedBOT import ByteSized
@@ -47,16 +49,18 @@ def describe_grow(board, player, grow):
     row, col = to_coord(where)
     return f"{COLORS[player]} removes the {PIECES[board.board[row][col]]} at row {row}, col {col} back to hand"
 
-def show(board, text):
+def show(board, text, verbose=True):
+    if not verbose:          # many-game runs: no board printing and no delay
+        return
     print(text)
     print(board)
     print(f"Hands [kittens, cats]   blue: {board.hands[0]}   orange: {board.hands[1]}\n")
     time.sleep(DELAY)
 
-def run_game(blue, orange):
+def run_game(blue, orange, verbose=True):
     board = Board([[0] * 6 for _ in range(6)], [[8, 0], [8, 0]])
     bots = {1: blue, 2: orange}
-    show(board, "Start")
+    show(board, "Start", verbose)
     player = 1
     for turn in range(1, TURN_CAP + 1):
         try:
@@ -77,7 +81,7 @@ def run_game(blue, orange):
 
         piece, index = move
         row, col = to_coord(index)
-        show(board, f"Turn {turn}: {COLORS[player]} places a {PIECES[piece]} at row {row}, col {col}")
+        show(board, f"Turn {turn}: {COLORS[player]} places a {PIECES[piece]} at row {row}, col {col}", verbose)
 
         winner = board.is_terminal()
         if winner:
@@ -95,7 +99,7 @@ def run_game(blue, orange):
                 return 3 - player
             text = describe_grow(board, player, choice)
             board.grow(choice)
-            show(board, text)
+            show(board, text, verbose)
         player = 3 - player
     return 0
 
@@ -110,6 +114,31 @@ def choose_bot(color):
                 return name
         print("That's not on the list, try again.")
 
+def ask_games():
+    while True:
+        answer = input("How many games? (press Enter for 1): ").strip()
+        if answer == "":
+            return 1
+        if answer.isdigit() and int(answer) >= 1:
+            return int(answer)
+        print("Enter a whole number of 1 or more.")
+
+def run_many(blue, orange, games):
+    """Plays `games` silent games (fresh bots each time) and prints the win percentages."""
+    results = {0: 0, 1: 0, 2: 0}
+    problems = 0
+    for _ in range(games):
+        log = io.StringIO()
+        with contextlib.redirect_stdout(log):      # hides anything a bot or the rules print
+            result = run_game(BOTS[blue](), BOTS[orange](), verbose=False)
+        results[result] += 1
+        # A crash or illegal move is a forfeit, so flag it rather than letting it pass silently.
+        problems += any("crashed" in line or "illegal" in line for line in log.getvalue().splitlines())
+    print(f"{blue} as blue won {results[1]} games ({results[1] / games:.1%})")
+    print(f"{orange} as orange won {results[2]} games ({results[2] / games:.1%})")
+    if problems:
+        print(f"Warning: {problems} game(s) ended because a bot crashed or made an illegal move.")
+
 def main():
     print("Available bots:")
     for i, name in enumerate(BOTS, start=1):
@@ -117,6 +146,10 @@ def main():
     print()
     blue = choose_bot("Blue")
     orange = choose_bot("Orange")
+    games = ask_games()
+    if games > 1:
+        run_many(blue, orange, games)
+        return
     print(f"\nBlue: {blue}   vs   Orange: {orange}\n")
     result = run_game(BOTS[blue](), BOTS[orange]())
     print({1: f"{blue} (blue) wins!", 2: f"{orange} (orange) wins!", 0: "Draw (turn cap reached)."}[result])
