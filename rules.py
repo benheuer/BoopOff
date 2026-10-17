@@ -126,7 +126,7 @@ class Board:
       for index in line:
         row, col = to_coord(index)
         check.append(self.board[row][col])
-      if (check[0] < 0 and check[1] < 0 and check[2] < 0) or (check[0] > 0 and check[1] > 0 and check[2] > 0) :
+      if (check[0] < 0 and check[1] < 0 and check[2] < 0) or (check[0] > 0 and check[1] > 0 and check[2] > 0):
         result.append(("grow", line))
 
     for player in [1,2]:
@@ -147,12 +147,12 @@ class Board:
       indices = tuple(sorted(growth[1]))
       if indices not in get_lines():
         raise IllegalMove("The provided growth action is not a line of three.")
-      check = set()
+      check = []
       for index in indices:
         row, col = to_coord(index)
-        check.add(self.board[row][col])
-      if len(check) != 1 or abs(next(iter(check))) != 1:
-        raise IllegalMove("The provided growth action is impossible.")
+        check.append(self.board[row][col])
+      if not (check[0] < 0 and check[1] < 0 and check[2] < 0) or not (check[0] > 0 and check[1] > 0 and check[2] > 0):
+        raise IllegalMove("The chosen pieces are not all of the same player.")
       for index in indices:
         row, col = to_coord(index)
         owner = 0 if self.board[row][col] < 0 else 1
