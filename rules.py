@@ -54,66 +54,50 @@ class Board:
       
     return result
   
-  def play(self, move): # Move tuples are expressed as (piece, index, move_type) with piece as -2,-1,1,2 and index 0-35
+  def play(self, move): # Move tuples are expressed as (piece, index) with piece as -2,-1,1,2 and index 0-35
     piece = move[0]
     row, col = to_coord(move[1])
     player = 1 if (piece > 0) - (piece < 0) == -1 else 2
 
-    if move[2] == "place":
+    if self.board[row][col] != 0:
+      raise IllegalMove("Cannot place a piece where a piece already exists.")
+    
+    if not (self.hands[player - 1][abs(piece) - 1] > 0):
+      raise IllegalMove("Cannot place a piece that does not exist.")
 
-      if self.board[row][col] != 0:
-        raise IllegalMove("Cannot place a piece where a piece already exists.")
-      
-      if not (self.hands[player - 1][abs(piece) - 1] > 0):
-        raise IllegalMove("Cannot place a piece that does not exist.")
+    self.board[row][col] = piece
+    self.hands[player - 1][abs(piece) - 1] -= 1
 
-      self.board[row][col] = piece
-      self.hands[player - 1][abs(piece) - 1] -= 1
+    #Boop logic
 
-      #Boop logic
+    directions = [-1,0,1]
 
-      directions = [-1,0,1]
+    for i in directions:
+      for j in directions:
 
-      for i in directions:
-        for j in directions:
+        if i == 0 and j == 0:
+              continue
 
-          if i == 0 and j == 0:
-                continue
+        nr, nc = row + i, col + j
+        if not (0 <= nr <= 5 and 0 <= nc <= 5):
+          continue
 
-          nr, nc = row + i, col + j
-          if not (0 <= nr <= 5 and 0 <= nc <= 5):
-            continue
+        neighbor = self.board[nr][nc]
 
-          neighbor = self.board[nr][nc]
+        if neighbor == 0 or abs(piece) < abs(neighbor):
+          continue
 
-          if neighbor == 0 or abs(piece) < abs(neighbor):
-            continue
+        dr, dc = row + 2*i, col + 2*j
 
-          dr, dc = row + 2*i, col + 2*j
-
-          if 0 <= dr <= 5 and 0 <= dc <= 5:
-            if self.board[dr][dc] == 0:
-              self.board[dr][dc] = neighbor
-              self.board[nr][nc] = 0
-
-          else:
-            owner = 0 if neighbor < 0 else 1
-            self.hands[owner][abs(neighbor) - 1] += 1
+        if 0 <= dr <= 5 and 0 <= dc <= 5:
+          if self.board[dr][dc] == 0:
+            self.board[dr][dc] = neighbor
             self.board[nr][nc] = 0
 
-    elif move[2] == "remove":
-
-      row, col = to_coord(move[1])
-      piece = move[0]
-
-      if self.board[row][col] != piece:
-        raise IllegalMove("The specified piece does not exist at the given point")
-      
-      removed = self.board[row][col]
-      owner = 0 if removed < 0 else 1
-      self.hands[owner][1] += 1  
-      
-      self.board[row][col] = 0
+        else:
+          owner = 0 if neighbor < 0 else 1
+          self.hands[owner][abs(neighbor) - 1] += 1
+          self.board[nr][nc] = 0
 
   def is_terminal(self):
     lines = get_lines()
@@ -143,35 +127,68 @@ class Board:
         row, col = to_coord(index)
         check.add(self.board[row][col])
       if len(check) == 1 and abs(next(iter(check))) == 1:
-        result.append(line)
-    
-    return result
-  
-  def grow(self, indecies): # takes a three tuple of the chosen grows.
-    check = set() 
-    for index in indecies:
-      row, col = to_coord(index)
-      check.add(self.board[row][col])
-    if len(check) != 1 or abs(next(iter(check))) != 1:
-      raise IllegalMove("The provided growth action is impossible.")
+        result.append(("grow", line))
 
-    for index in indecies:
-      row, col = to_coord(index)
-      owner = 0 if self.board[row][col] < 0 else 1
+    # A player with no pieces left in hand must retire one of their kittens
+    # (it goes back to their hand as a cat). Kittens only: a kitten is +-1.
+    for player in [1,2]:
+      kitten = -1 if player == 1 else 1
+      hand = self.hands[player - 1]
+
+      if hand[0] + hand[1] == 0:
+        for row in range(6):
+          for col in range(6):
+            if self.board[row][col] == kitten:
+              result.append(("remove", to_index((row,col))))
+
+    return result
+
+  def grow(self, growth): # takes one of the choices from get_grows(): ("grow", (a,b,c)) or ("remove", index)
+
+    if growth[0] == "grow":
+      indices = tuple(sorted(growth[1]))
+      if indices not in get_lines():
+        raise IllegalMove("The provided growth action is not a line of three.")
+      check = set()
+      for index in indices:
+        row, col = to_coord(index)
+        check.add(self.board[row][col])
+      if len(check) != 1 or abs(next(iter(check))) != 1:
+        raise IllegalMove("The provided growth action is impossible.")
+      for index in indices:
+        row, col = to_coord(index)
+        owner = 0 if self.board[row][col] < 0 else 1
+        self.hands[owner][1] += 1
+        self.board[row][col] = 0
+
+    elif growth[0] == "remove":
+
+      row, col = to_coord(growth[1])
+      removed = self.board[row][col]
+
+      if abs(removed) != 1:
+        raise IllegalMove("There is no kitten to retire at that index")
+
+      owner = 0 if removed < 0 else 1
+      if self.hands[owner][0] + self.hands[owner][1] != 0:
+        raise IllegalMove("A kitten can only be retired when there are no pieces left in hand")
+
       self.hands[owner][1] += 1
+
       self.board[row][col] = 0
+
+    else:
+      raise IllegalMove("Unknown growth type.")
 
   def get_legals(self, player):
     if player not in (1, 2):
         raise ValueError("Player must be 1 (blue) or 2 (orange).")
 
     result = []
-    move = ""
     hand = self.hands[player - 1]
     sign = -1 if player == 1 else 1
     
     if self.hands[player - 1][0] + self.hands[player - 1][1] > 0:
-      move = "place"
 
       for row in range(6):
           for col in range(6):
@@ -180,16 +197,10 @@ class Board:
 
               for piece_type, count in enumerate(hand, start=1):
                   if count > 0:
-                      result.append((sign * piece_type, to_index((row, col)),move))
+                      result.append((sign * piece_type, to_index((row, col))))
     else:
-      move = "remove"
-      
-      for row in range(6):
-        for col in range(6):
-          if self.board[row][col] != 0 and ((self.board[row][col] > 0) - (self.board[row][col] < 0)) == sign:
-              result.append((self.board[row][col],to_index((row,col)), move))
+      raise IllegalMove("Cannot play a piece")
     
-
     return result
 
 
