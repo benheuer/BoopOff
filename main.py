@@ -87,6 +87,7 @@ def run_game(blue, orange, verbose=True, count=False):
                 return 3 - player, TURNCOUNT
             return 3 - player
         board.play(move)
+        TURNCOUNT += 1
 
         piece, index = move
         row, col = to_coord(index)
@@ -116,7 +117,8 @@ def run_game(blue, orange, verbose=True, count=False):
             board.grow(choice)
             show(board, text, verbose)
         player = 3 - player
-        TURNCOUNT += 1
+    if count:
+        return 0, TURNCOUNT
     return 0
 
 def choose_bot(color):
@@ -155,7 +157,7 @@ def run_many(blue, orange, games):
     turns.sort()
     print(f"{blue} as blue won {results[1]} games ({results[1] / games:.2%})")
     print(f"{orange} as orange won {results[2]} games ({results[2] / games:.2%})")
-    print(f"Each game took, on average, {sum(turns) / len(turns)} turns.")
+    print(f"Each game took, on average, {sum(turns) / len(turns):.1f} turns.")
     print(f"The longest game was {turns[-1]} turns, while the shortest was {turns[0]}.")
     if problems:
         print(f"Warning: {problems} game(s) ended because a bot crashed or made an illegal move.")
