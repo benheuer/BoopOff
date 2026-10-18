@@ -45,3 +45,7 @@ A search depth one bot with really bad heuristics, baseline non-random bot.
 `CatGPT` is a bot written by ChatGPT, hence the name. The AI chose the bot to have configurable search depths.
 
 Use `CatGPT(search_depth=3)` to search our move, the opponent's reply, and our following move; `CatGPT()` defaults to depth 2. Growth or retirement stays part of the turn that causes it.
+
+### ClawedBOT.py ###
+
+`Clawed` is a bot written by Claude, hence the name. It looks several turns ahead, assuming the opponent always picks their best reply, and skips lines of play that can't change its decision. It keeps searching one turn deeper until its time runs out: `Clawed(time_limit=1.0)` thinks for one second per decision, which is the default. `Clawed(time_limit=None, max_depth=n)` always looks exactly `n` turns ahead, and so always makes the same choice for the same board. The top of `ClawedBOT.py` explains the algorithm step by step. `test_clawed.py` checks that Clawed's own copy of the rules agrees with `rules.py`.

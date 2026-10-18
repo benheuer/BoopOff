@@ -6,11 +6,13 @@ from rules import Board, IllegalMove, to_coord
 from ByteSizedBOT import ByteSized
 from MeowddledBOT import Meowddled
 from CatGPTBOT import CatGPT
+from ClawedBOT import Clawed
 
 BOTS = {
     "ByteSized": ByteSized,
     "Meowddled": Meowddled,
     "CatGPT": CatGPT,
+    "Clawed": Clawed,
 }
 DELAY = 1
 TURN_CAP = 400
