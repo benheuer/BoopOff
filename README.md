@@ -4,6 +4,8 @@ GNU license. Below are laid the tools included within.
 
 This was created for the purposes of hosting a friendly tournament between multiple of the same bot.
 
+[The official rules doc](https://docs.google.com/document/d/1cbF1iT60-XmD5JnTZysk0GyZdw6IkPTJDNt7CI4EPvQ/edit?tab=t.0)
+
 ### rules.py ###
 
 `class IllegalMove`: a custom class created specifically to handle moves that cannot exist/cannot be made.
