@@ -33,11 +33,13 @@ class Player(BoopBot):
         a = to_coord(grow[1][0])
         b = to_coord(grow[1][1])
         c = to_coord(grow[1][2])
-        print(f"You may graduate the pieces at ({a[1]},{a[1]}), ({b[1]},{b[1]}), and ({c[1]},{c[1]}).")
+        print(f"You may graduate the pieces at ({a[0]},{a[1]}), ({b[0]},{b[1]}), and ({c[0]},{c[1]}).")
       elif grow[0] == "remove":
         print(f"You may remove (and graduate, if possible) the piece at {to_coord(grow[1])}.")
       choices.append((i,grow))
-
-    choice = int(input("Please put the number of your action: ")) + 1
-    return choices.sort()[choice - 1]
+    
+    while not choice in range(len(choices)) + 1:
+      choice = int(input("Please put the number of your action: "))
+    choices.sort()
+    return choices[choice - 1][1]
     

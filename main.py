@@ -149,8 +149,10 @@ def choose_bot(color):
         print("That's not on the list, try again.")
 
 def ask_games(bot1, bot2):
-    if isinstance(bot1,Player) or isinstance(bot2,Player):
+    
+    if "Player" in (bot1, bot2):
         return 1
+    
     while True:
         answer = input("How many games? (press Enter for 1): ").strip()
         if answer == "":
