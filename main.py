@@ -2,6 +2,7 @@ import contextlib
 import copy
 import io
 import time
+from collections import deque
 from rules import Board, IllegalMove, to_coord
 from ByteSizedBOT import ByteSized
 from MeowddledBOT import Meowddled
@@ -16,6 +17,10 @@ BOTS = {
 }
 DELAY = 1
 TURN_CAP = 400
+# Repetition draw: after each turn, if the position matches the position this many plies back
+# (every one of these), the game is stuck in a loop and is called a draw.
+# A ply is one player's whole turn (the placement plus any graduation or removal).
+REPEAT_PLIES = (2, 4, 6)
 
 COLORS = {1: "Blue", 2: "Orange"}
 PIECES = {-2: "blue cat", -1: "blue kitten", 1: "orange kitten", 2: "orange cat"}
@@ -65,6 +70,7 @@ def run_game(blue, orange, verbose=True, count=False):
     show(board, "Start", verbose)
     player = 1
     TURNCOUNT = 0
+    history = deque(maxlen=max(REPEAT_PLIES))     # positions after the last few turns
     for turn in range(1, TURN_CAP + 1):
         try:
             legals = board.get_legals(player)
@@ -116,6 +122,14 @@ def run_game(blue, orange, verbose=True, count=False):
             text = describe_grow(board, player, choice)
             board.grow(choice)
             show(board, text, verbose)
+
+        # history[-1] is one ply ago, history[-2] two plies ago, and so on.
+        if len(history) == history.maxlen and all(board == history[-k] for k in REPEAT_PLIES):
+            print(f"Draw by repetition: the position is the same as {', '.join(str(k) for k in REPEAT_PLIES)} plies ago.")
+            if count:
+                return 0, TURNCOUNT
+            return 0
+        history.append(copy.deepcopy(board))
         player = 3 - player
     if count:
         return 0, TURNCOUNT
@@ -175,7 +189,7 @@ def main():
         return
     print(f"\nBlue: {blue}   vs   Orange: {orange}\n")
     result = run_game(BOTS[blue](), BOTS[orange]())
-    print({1: f"{blue} (blue) wins!", 2: f"{orange} (orange) wins!", 0: "Draw (turn cap reached)."}[result])
+    print({1: f"{blue} (blue) wins!", 2: f"{orange} (orange) wins!", 0: "Draw."}[result])
 
 if __name__ == "__main__":
     main()
