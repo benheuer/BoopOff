@@ -135,7 +135,7 @@ class _OutOfTime(Exception):
 class Clawed(BoopBot):
     """Searches as many turns ahead as it can within a time limit."""
 
-    def __init__(self, time_limit=1.0, max_depth=12):
+    def __init__(self, time_limit=0.4, max_depth=12):
         """Set how long Clawed may think, and how deep it may look.
 
         time_limit is the number of seconds per decision. max_depth is the
@@ -271,10 +271,10 @@ class Clawed(BoopBot):
         opponent will allow. Once a move here reaches beta, the opponent
         would never let the game reach this board, so we stop early.
         """
-        # Check the clock every 256 boards. Checking every time would slow
+        # Check the clock every 300 boards. Checking every time would slow
         # the search down.
         self._nodes += 1
-        if self._deadline is not None and self._nodes % 256 == 0:
+        if self._deadline is not None and self._nodes % 300 == 0:
             if time.perf_counter() > self._deadline:
                 raise _OutOfTime
 

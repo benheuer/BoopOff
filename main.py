@@ -59,25 +59,32 @@ def show(board, text, verbose=True):
     print(f"Hands [kittens, cats]   blue: {board.hands[0]}   orange: {board.hands[1]}\n")
     time.sleep(DELAY)
 
-def run_game(blue, orange, verbose=True):
+def run_game(blue, orange, verbose=True, count=False):
     board = Board([[0] * 6 for _ in range(6)], [[8, 0], [8, 0]])
     bots = {1: blue, 2: orange}
     show(board, "Start", verbose)
     player = 1
+    TURNCOUNT = 0
     for turn in range(1, TURN_CAP + 1):
         try:
             legals = board.get_legals(player)
         except IllegalMove:
             print(f"{COLORS[player]} has nothing to play. Ending as a draw.")
+            if count:
+                return 0, TURNCOUNT
             return 0
 
         try:
             move = tuple(bots[player].give_move(list(legals), copy.deepcopy(board), player))
         except Exception as e:
             print(f"{COLORS[player]} crashed: {e!r}")
+            if count:
+                return 3 - player, TURNCOUNT
             return 3 - player
         if move not in legals:
             print(f"{COLORS[player]} made an illegal move: {move}")
+            if count:
+                return 3 - player, TURNCOUNT
             return 3 - player
         board.play(move)
 
@@ -87,6 +94,8 @@ def run_game(blue, orange, verbose=True):
 
         winner = board.is_terminal()
         if winner:
+            if count:
+                return winner, TURNCOUNT
             return winner
 
         grows = own_grows(board, player)
@@ -95,14 +104,19 @@ def run_game(blue, orange, verbose=True):
                 choice = clean_grow(bots[player].give_grow(list(grows), copy.deepcopy(board), player))
             except Exception as e:
                 print(f"{COLORS[player]} crashed while growing: {e!r}")
+                if count:
+                    return 3 - player, TURNCOUNT
                 return 3 - player
             if choice not in grows:
                 print(f"{COLORS[player]} made an illegal grow: {choice}")
+                if count:
+                    return 3 - player, TURNCOUNT
                 return 3 - player
             text = describe_grow(board, player, choice)
             board.grow(choice)
             show(board, text, verbose)
         player = 3 - player
+        TURNCOUNT += 1
     return 0
 
 def choose_bot(color):
@@ -128,16 +142,19 @@ def ask_games():
 def run_many(blue, orange, games):
     """Plays `games` silent games (fresh bots each time) and prints the win percentages."""
     results = {0: 0, 1: 0, 2: 0}
+    turns = []
     problems = 0
     for _ in range(games):
         log = io.StringIO()
         with contextlib.redirect_stdout(log):      # hides anything a bot or the rules print
-            result = run_game(BOTS[blue](), BOTS[orange](), verbose=False)
+            result, count = run_game(BOTS[blue](), BOTS[orange](), verbose=False, count = True)
         results[result] += 1
+        turns.append(count)
         # A crash or illegal move is a forfeit, so flag it rather than letting it pass silently.
         problems += any("crashed" in line or "illegal" in line for line in log.getvalue().splitlines())
-    print(f"{blue} as blue won {results[1]} games ({results[1] / games:.1%})")
-    print(f"{orange} as orange won {results[2]} games ({results[2] / games:.1%})")
+    print(f"{blue} as blue won {results[1]} games ({results[1] / games:.2%})")
+    print(f"{orange} as orange won {results[2]} games ({results[2] / games:.2%})")
+    print(f"Each game took, on average, {sum(turns) / len(turns)} turns.")
     if problems:
         print(f"Warning: {problems} game(s) ended because a bot crashed or made an illegal move.")
 
