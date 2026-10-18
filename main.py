@@ -8,15 +8,17 @@ from ByteSizedBOT import ByteSized
 from MeowddledBOT import Meowddled
 from CatGPTBOT import CatGPT
 from ClawedBOT import Clawed
+from Player import Player
 
 BOTS = {
     "ByteSized": ByteSized,
     "Meowddled": Meowddled,
     "CatGPT": CatGPT,
     "Clawed": Clawed,
+    "Player": Player
 }
 DELAY = 1
-TURN_CAP = 400
+TURN_CAP = 300
 # Repetition draw: after each turn, if the position matches the position this many plies back
 # (every one of these), the game is stuck in a loop and is called a draw.
 # A ply is one player's whole turn (the placement plus any graduation or removal).
