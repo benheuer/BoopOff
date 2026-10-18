@@ -1,9 +1,11 @@
 from bot import BoopBot
-from rules import IllegalMove
+from rules import IllegalMove, to_index, to_coord
 
 class Player(BoopBot):
 
   def give_move(self, moves, board, player):
+
+    print("Rows and columns are zero-indexed.")
 
     while True:
       try:
@@ -26,14 +28,14 @@ class Player(BoopBot):
 
     for i in range(len(grows)):
       grow = grows[i]
-      printf("{i}.",end="")
+      print(f"{i}.",end="")
       if grow[0] == "grow":
         a = to_coord(grow[1][1])
         b = to_coord(grow[1][2])
         c = to_coord(grow[1][3])
-        printf("You may graduate the pieces at ({a[1]},{a[1]}), ({b[1]},{b[1]}), and ({c[1]},{c[1]}).")
+        print(f"You may graduate the pieces at ({a[1]},{a[1]}), ({b[1]},{b[1]}), and ({c[1]},{c[1]}).")
       if grow[0] == "remove":
-        printf("You may remove (and graduate, if possible) the piece at {to_coord(grow[1])}.")
+        print(f"You may remove (and graduate, if possible) the piece at {to_coord(grow[1])}.")
       choices.append((i,grow))
 
     choice = input("Please put the number of your action: ")
