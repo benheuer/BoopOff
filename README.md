@@ -24,9 +24,21 @@ The object also contains a `hands` property - two two-item lists for counting ki
 
 `get_grows(self)` and `grow(self, growth)`: growth choices are `("grow", (a, b, c))` for three kittens, or `("remove", index)` to retire one kitten into a cat when its owner's hand is empty. Only the mover acts, once per turn, after checking for a win. The runner offers that player's line growths first, and retirement choices only when there are no line growths.
 
+## main.py ##
+
+Run it - pretty self explanitory. Claude AI wrote much of it.
+
 ### bot.py ###
 
 All bots created for said competition must be subclasses of the simple BoopBot abstract class included here so the competition can be run properly.
+
+### MeowddledBOT.py ###
+
+The random bot.
+
+### ByteSizedBOT.py ###
+
+A search depth one bot with really bad heuristics, baseline non-random bot.
 
 ### CatGPTBOT.py ###
 
