@@ -28,7 +28,7 @@ class Player(BoopBot):
 
     for i in range(len(grows)):
       grow = grows[i]
-      print(f"{i}.",end="")
+      print(f"{i + 1}. ",end="")
       if grow[0] == "grow":
         a = to_coord(grow[1][0])
         b = to_coord(grow[1][1])
@@ -38,6 +38,6 @@ class Player(BoopBot):
         print(f"You may remove (and graduate, if possible) the piece at {to_coord(grow[1])}.")
       choices.append((i,grow))
 
-    choice = input("Please put the number of your action: ")
+    choice = int(input("Please put the number of your action: ")) + 1
     return choices.sort()[choice - 1]
     
