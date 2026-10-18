@@ -37,6 +37,8 @@ class Player(BoopBot):
       elif grow[0] == "remove":
         print(f"You may remove (and graduate, if possible) the piece at {to_coord(grow[1])}.")
       choices.append((i,grow))
+
+    choice = -100000 # Just so choice is already defined.
     
     while not choice in range(len(choices)) + 1:
       choice = int(input("Please put the number of your action: "))
