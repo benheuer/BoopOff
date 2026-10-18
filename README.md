@@ -48,4 +48,4 @@ Use `CatGPT(search_depth=3)` to search our move, the opponent's reply, and our f
 
 ### ClawedBOT.py ###
 
-`Clawed` is a bot written by Claude (hence the name). It copies the board into flat lists, then runs iterative-deepening negamax with alpha-beta pruning and a transposition table, searching as deep as it can within `time_limit` seconds per decision (default 1.0). `Clawed(time_limit=None, max_depth=n)` searches exactly `n` plies and is fully deterministic. Its internal copy of the rules is checked against `rules.py` by `test_clawed.py`.
+`Clawed` is a bot written by Claude, hence the name. It looks several turns ahead, assuming the opponent always picks their best reply, and skips lines of play that can't change its decision. It keeps searching one turn deeper until its time runs out: `Clawed(time_limit=1.0)` thinks for one second per decision, which is the default. `Clawed(time_limit=None, max_depth=n)` always looks exactly `n` turns ahead, and so always makes the same choice for the same board. The top of `ClawedBOT.py` explains the algorithm step by step. `test_clawed.py` checks that Clawed's own copy of the rules agrees with `rules.py`.

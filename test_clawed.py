@@ -1,4 +1,19 @@
-"""Tests for Clawed; no third-party dependencies."""
+"""Tests for Clawed. Run them with: python3 -m unittest test_clawed
+
+There are two kinds of test here:
+
+- Rules tests check that Clawed's own copy of the rules (in ClawedBOT.py)
+  always agrees with the real rules in rules.py and main.py. Clawed bases
+  every decision on its copy, so if the two disagreed, it would be
+  planning for a different game than the one it is playing.
+- Tactics tests set up a small position where there is one clearly right
+  answer, such as taking a win or blocking one, and check that Clawed
+  finds it. Each runs once as blue and once as orange, since the colours
+  use opposite signs and a bug often shows up in only one of them.
+
+These tests use fixed() rather than Clawed() so that the search depth, and
+so the answer, is the same every time, however fast the computer is.
+"""
 
 import copy
 import random
@@ -11,6 +26,7 @@ from rules import Board, IllegalMove
 
 
 def position(pieces=(), hands=None):
+    """Build a Board from (row, col, piece) triples; every other square is empty."""
     cells = [[0] * 6 for _ in range(6)]
     for row, col, piece in pieces:
         cells[row][col] = piece
@@ -18,7 +34,7 @@ def position(pieces=(), hands=None):
 
 
 def can_win_next(board, player):
-    """Independent one-turn oracle using the real rules engine."""
+    """Can `player` win this turn? Checked by trying every move with rules.py."""
     for move in board.get_legals(player):
         state = copy.deepcopy(board)
         state.play(move)
@@ -38,6 +54,8 @@ class ClawedTests(unittest.TestCase):
         self.assertIs(BOTS["Clawed"], Clawed)
 
     def test_internal_rules_match_rules_py(self):
+        # Play 200 random games, and after every step compare Clawed's
+        # version of the board with the real one.
         rng = random.Random(0)
         for _ in range(200):
             board = Board([[0] * 6 for _ in range(6)], [[8, 0], [8, 0]])
@@ -124,7 +142,8 @@ class ClawedTests(unittest.TestCase):
                     [(3, 3, -2 * sign), (4, 3, -2 * sign), (5, 3, -sign)],
                     hands,
                 )
-                grows = board.get_grows()
+                grows = own_grows(board, player)
+                self.assertEqual(len(grows), 2)
                 before = copy.deepcopy((board.board, board.hands, grows))
                 grow = fixed().give_grow(grows, board, player)
                 self.assertEqual(grow, ("grow", (12, 13, 14)))
@@ -150,6 +169,19 @@ class ClawedTests(unittest.TestCase):
                 if grow[0] == "remove":
                     board.grow(grow)
                     self.assertEqual(board.hands[player - 1], [0, 1])
+
+    def test_mixed_line_of_kittens_and_cats_graduates(self):
+        for player, sign in ((1, -1), (2, 1)):
+            with self.subTest(player=player):
+                board = position([(2, 1, sign), (2, 2, 2 * sign), (2, 3, sign)],
+                                 [[5, 0], [5, 0]])
+                grows = own_grows(board, player)
+                self.assertEqual(grows, [("grow", (13, 14, 15))])
+                self.assertEqual(_own_grows(*_flatten(board), player), grows)
+                cells, hands = _grow(*_flatten(board), grows[0])
+                board.grow(grows[0])
+                self.assertEqual((cells, hands), _flatten(board))
+                self.assertEqual(board.hands[player - 1], [5, 3])
 
     def test_empty_hand_scores_as_a_draw(self):
         board = position([(0, 0, -1)], [[0, 0], [7, 0]])
