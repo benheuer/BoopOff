@@ -64,6 +64,9 @@ class Clawed(BoopBot):
             raise ValueError("max_depth must be a positive integer.")
         self.time_limit = time_limit
         self.max_depth = max_depth
+        self._deadline = None
+        self._table = {}
+        self._nodes = 0
 
     # ----- the BoopBot interface -------------------------------------------
 
@@ -86,7 +89,7 @@ class Clawed(BoopBot):
         def children():
             for grow in grows:
                 next_cells, next_hands = _grow(cells, hands, grow)
-                yield grow, [(None, next_cells, next_hands)]
+                yield grow, [(0, next_cells, next_hands)]
 
         return self._choose(children, player, default=grows[0])
 
@@ -180,8 +183,9 @@ class Clawed(BoopBot):
                     if alpha >= beta:
                         break
 
-        if best_move is None:  # no legal move: cannot happen in Boop, but be safe
-            return _evaluate(cells, hands, player)
+        if best_move is None:
+            # Nothing in hand to place: main.py scores this as a draw.
+            return 0
 
         flag = 0
         if best <= start_alpha:
@@ -193,12 +197,16 @@ class Clawed(BoopBot):
 
     @staticmethod
     def _after_move(cells, hands, move, player):
-        """All (winner, cells, hands) results of a move, one per growth choice."""
+        """All (winner, cells, hands) results of a move, one per growth choice.
+
+        A growth choice is either graduating a line of kittens or, when the
+        mover's hand is empty and there is no line, a forced retirement.
+        """
         next_cells, next_hands = _play(cells, hands, move)
         winner = _winner(next_cells)
         if winner:
             return [(winner, next_cells, next_hands)]
-        grows = _own_grows(next_cells, player)
+        grows = _own_grows(next_cells, next_hands, player)
         if not grows:
             return [(0, next_cells, next_hands)]
         results = []
@@ -218,19 +226,18 @@ def _flatten(board):
 
 
 def _legal_moves(cells, hands, player):
+    """Placements only; an empty hand has none (rules.py raises instead)."""
     sign = -1 if player == 1 else 1
     base = 0 if player == 1 else 2
     kittens, cats = hands[base], hands[base + 1]
-    if kittens + cats > 0:
-        moves = []
-        for cell in CELL_ORDER:
-            if cells[cell] == 0:
-                if cats:
-                    moves.append((2 * sign, cell, "place"))
-                if kittens:
-                    moves.append((sign, cell, "place"))
-        return moves
-    return [(cells[c], c, "remove") for c in CELL_ORDER if cells[c] * sign > 0]
+    moves = []
+    for cell in CELL_ORDER:
+        if cells[cell] == 0:
+            if cats:
+                moves.append((2 * sign, cell))
+            if kittens:
+                moves.append((sign, cell))
+    return moves
 
 
 def _ordered_moves(cells, hands, player, first):
@@ -242,14 +249,9 @@ def _ordered_moves(cells, hands, player, first):
 
 
 def _play(cells, hands, move):
-    piece, cell, kind = move
+    piece, cell = move
     cells = cells[:]
     hands = hands[:]
-    if kind == "remove":
-        cells[cell] = 0
-        hands[1 if piece < 0 else 3] += 1  # removing always returns a cat
-        return cells, hands
-
     cells[cell] = piece
     hands[(0 if piece < 0 else 2) + abs(piece) - 1] -= 1
     size = abs(piece)
@@ -279,17 +281,26 @@ def _winner(cells):
     return 0
 
 
-def _own_grows(cells, player):
+def _own_grows(cells, hands, player):
+    """The mover's growth choices, in the same form and order as main.py."""
     kitten = -1 if player == 1 else 1
-    return [line for line in LINES
-            if cells[line[0]] == kitten and cells[line[1]] == kitten
-            and cells[line[2]] == kitten]
+    lines = [("grow", line) for line in LINES
+             if cells[line[0]] == kitten and cells[line[1]] == kitten
+             and cells[line[2]] == kitten]
+    if lines:
+        return lines
+    base = 0 if player == 1 else 2
+    if hands[base] + hands[base + 1]:
+        return []
+    return [("remove", cell) for cell in range(36) if cells[cell] == kitten]
 
 
 def _grow(cells, hands, grow):
+    """Graduate a line, or retire one kitten; either way, cats go to hand."""
+    kind, where = grow
     cells = cells[:]
     hands = hands[:]
-    for cell in grow:
+    for cell in (where if kind == "grow" else (where,)):
         hands[1 if cells[cell] < 0 else 3] += 1
         cells[cell] = 0
     return cells, hands
@@ -355,7 +366,7 @@ def _can_win_now(cells, hands, player):
             return False
     for cell in range(36):
         if cells[cell] == 0:
-            next_cells, _ = _play(cells, hands, (cat, cell, "place"))
+            next_cells, _ = _play(cells, hands, (cat, cell))
             if _winner(next_cells) == player:
                 return True
     return False

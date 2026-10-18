@@ -5,10 +5,26 @@ import random
 import unittest
 
 from bot import BoopBot
-from main import BOTS
+from main import BOTS, own_grows
 from ClawedBOT import Clawed, _flatten, _grow, _legal_moves, _own_grows, _play, _winner
-from rules import Board
-from test_catgpt import can_win_next, position
+from rules import Board, IllegalMove
+
+
+def position(pieces=(), hands=None):
+    cells = [[0] * 6 for _ in range(6)]
+    for row, col, piece in pieces:
+        cells[row][col] = piece
+    return Board(cells, hands if hands is not None else [[8, 0], [8, 0]])
+
+
+def can_win_next(board, player):
+    """Independent one-turn oracle using the real rules engine."""
+    for move in board.get_legals(player):
+        state = copy.deepcopy(board)
+        state.play(move)
+        if state.is_terminal() == player:
+            return True
+    return False
 
 
 def fixed(depth=2):
@@ -28,7 +44,11 @@ class ClawedTests(unittest.TestCase):
             player = 1
             for _ in range(150):
                 cells, hands = _flatten(board)
-                legals = board.get_legals(player)
+                try:
+                    legals = board.get_legals(player)
+                except IllegalMove:
+                    self.assertEqual(_legal_moves(cells, hands, player), [])
+                    break
                 self.assertEqual(sorted(legals), sorted(_legal_moves(cells, hands, player)))
                 move = rng.choice(legals)
                 board.play(move)
@@ -37,10 +57,8 @@ class ClawedTests(unittest.TestCase):
                 self.assertEqual(_winner(cells), board.is_terminal())
                 if board.is_terminal():
                     break
-                sign = -1 if player == 1 else 1
-                grows = [g for g in board.get_grows()
-                         if board.board[g[0] // 6][g[0] % 6] * sign > 0]
-                self.assertEqual(grows, _own_grows(cells, player))
+                grows = own_grows(board, player)
+                self.assertEqual(grows, _own_grows(cells, hands, player))
                 if grows:
                     grow = rng.choice(grows)
                     board.grow(grow)
@@ -109,22 +127,33 @@ class ClawedTests(unittest.TestCase):
                 grows = board.get_grows()
                 before = copy.deepcopy((board.board, board.hands, grows))
                 grow = fixed().give_grow(grows, board, player)
-                self.assertEqual(grow, (12, 13, 14))
+                self.assertEqual(grow, ("grow", (12, 13, 14)))
                 self.assertEqual((board.board, board.hands, grows), before)
                 board.grow(grow)
                 self.assertFalse(can_win_next(board, 3 - player))
 
-    def test_empty_hand_returns_a_legal_removal(self):
+    def test_retires_a_kitten_when_the_last_piece_leaves_hand(self):
         for player, sign in ((1, -1), (2, 1)):
             with self.subTest(player=player):
                 hands = [[8, 0], [8, 0]]
-                hands[player - 1] = [0, 0]
-                coords = [(0, 0), (0, 2), (0, 4), (2, 0), (2, 2), (2, 4), (4, 1), (4, 4)]
+                hands[player - 1] = [1, 0]
+                coords = [(0, 0), (0, 2), (0, 4), (2, 0), (2, 2), (2, 4), (4, 1)]
                 board = position([(r, c, sign) for r, c in coords], hands)
-                moves = board.get_legals(player)
-                move = fixed().give_move(moves, board, player)
-                self.assertIn(move, moves)
-                self.assertEqual(move[2], "remove")
+                move = fixed().give_move(board.get_legals(player), board, player)
+                board.play(move)
+                grows = own_grows(board, player)
+                self.assertTrue(grows)
+                before = copy.deepcopy((board.board, board.hands, grows))
+                grow = fixed().give_grow(grows, board, player)
+                self.assertIn(grow, grows)
+                self.assertEqual((board.board, board.hands, grows), before)
+                if grow[0] == "remove":
+                    board.grow(grow)
+                    self.assertEqual(board.hands[player - 1], [0, 1])
+
+    def test_empty_hand_scores_as_a_draw(self):
+        board = position([(0, 0, -1)], [[0, 0], [7, 0]])
+        self.assertEqual(fixed()._negamax(*_flatten(board), 1, 2, -10**9, 10**9), 0)
 
     def test_constructor_validates_arguments(self):
         for kwargs in ({"time_limit": 0}, {"time_limit": -1}, {"time_limit": "1"},
