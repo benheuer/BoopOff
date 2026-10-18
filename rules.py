@@ -53,6 +53,20 @@ class Board:
       result += "\n"
       
     return result
+
+  def __eq__(self,other):
+    if not isinstance(other,Board):
+      return False
+      
+    for i in range(6):
+      for j in range(6):
+        if self.board[i][j] != other.board[i][j]:
+          return False
+
+    if self.hands[0] != other.hands[0] or self.hands[1] != other.hands[1]:
+      return False
+
+    return True
   
   def play(self, move): # Move tuples are expressed as (piece, index) with piece as -2,-1,1,2 and index 0-35
     piece = move[0]
