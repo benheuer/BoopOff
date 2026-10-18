@@ -40,8 +40,8 @@ class Player(BoopBot):
 
     choice = -100000 # Just so choice is already defined.
     
-    while not choice in range(len(choices)) + 1:
-      choice = int(input("Please put the number of your action: "))
+    while not choice - 1 in range(len(choices)):
+      choice = int(input("Please put the number of your action: \n"))
     choices.sort()
     return choices[choice - 1][1]
     
