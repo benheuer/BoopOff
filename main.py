@@ -152,9 +152,11 @@ def run_many(blue, orange, games):
         turns.append(count)
         # A crash or illegal move is a forfeit, so flag it rather than letting it pass silently.
         problems += any("crashed" in line or "illegal" in line for line in log.getvalue().splitlines())
+    turns.sort()
     print(f"{blue} as blue won {results[1]} games ({results[1] / games:.2%})")
     print(f"{orange} as orange won {results[2]} games ({results[2] / games:.2%})")
     print(f"Each game took, on average, {sum(turns) / len(turns)} turns.")
+    print(f"The longest game was {turns[-1]} turns, while the shortest was {turns[0]}.")
     if problems:
         print(f"Warning: {problems} game(s) ended because a bot crashed or made an illegal move.")
 
