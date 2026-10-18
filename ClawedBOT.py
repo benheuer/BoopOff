@@ -2,8 +2,8 @@
 
 Written by Claude, hence the name.
 
-HOW CLAWED THINKS, IN FIVE IDEAS
-================================
+HOW CLAWED THINKS, IN SIX IDEAS
+===============================
 
 1. Look ahead ("search").
    To choose a move, Clawed imagines making each legal move, then imagines
@@ -50,6 +50,18 @@ HOW CLAWED THINKS, IN FIVE IDEAS
    scored. Different move orders often reach the same board, and looking
    the score up is much faster than working it out again.
 
+6. Don't go round in circles ("repetition").
+   Boops can undo each other: one move boops pieces aside, the reply boops
+   them back, and the board is exactly as it was two turns ago. Two copies
+   of Clawed that each think that's their best move would repeat it until
+   the turn cap, a draw. So Clawed remembers every board it has left its
+   opponent this game (self._handed). A move that would leave them a board
+   they've already seen loses REPEAT_PENALTY points for each earlier time.
+   Clawed keeps repeating only while the move is clearly better than
+   anything else, and as the cost grows each time round, it soon tries
+   something new. Forced wins and losses keep their scores: a win is still
+   a win, and no loop is worth walking into a forced loss.
+
 HOW THE BOARD IS STORED
 =======================
 rules.py stores the board as six rows of six. Searching makes copies of the
@@ -80,6 +92,10 @@ from rules import get_lines
 # A win is worth far more than any normal position, so the search always
 # prefers a win over any material advantage.
 WIN = 1_000_000
+
+# Points taken off a move for each time Clawed has already left the
+# opponent the board it leads to (idea 6).
+REPEAT_PENALTY = 30
 
 # All 80 three-in-a-row lines on the board, as triples of cell numbers.
 LINES = get_lines()
@@ -142,8 +158,8 @@ class Clawed(BoopBot):
         most plies Clawed will ever search, even with time to spare.
 
         With time_limit=None, Clawed searches exactly max_depth plies every
-        time. It then always picks the same move for the same board, which
-        is what the tests need.
+        time. It then always plays the same way against the same moves,
+        which is what the tests need.
         """
         if time_limit is not None and (
             isinstance(time_limit, bool)
@@ -161,6 +177,10 @@ class Clawed(BoopBot):
         self._table = {}       # memo table: board -> what we learned about it
         self._nodes = 0        # how many boards we've looked at
 
+        # Memory that lasts the whole game (idea 6).
+        self._handed = {}      # board we left the opponent -> how many times
+        self._cats = None      # how many cats there were when we last moved
+
     # ----- what main.py calls -------------------------------------------------
 
     def give_move(self, moves, board, player):
@@ -168,6 +188,7 @@ class Clawed(BoopBot):
         if not moves:
             raise ValueError("Clawed needs at least one legal move.")
         cells, hands = _flatten(board)
+        self._forget_old_boards(cells, hands)
 
         # For each move, every board it could lead to. A move can lead to
         # more than one board when it makes us choose a line to graduate.
@@ -175,7 +196,16 @@ class Clawed(BoopBot):
             for move in moves:
                 yield move, self._after_move(cells, hands, move, player)
 
-        return self._choose(choices, player, default=moves[0])
+        move = self._choose(choices, player, default=moves[0])
+
+        # Remember the board this move leaves the opponent. A move that
+        # graduates a line makes a new cat, so its board can never come back
+        # (see _forget_old_boards) and isn't worth remembering.
+        _, next_cells, next_hands = self._after_move(cells, hands, move, player)[0]
+        if _cat_count(next_cells, next_hands) == self._cats:
+            key = (tuple(next_cells), tuple(next_hands))
+            self._handed[key] = self._handed.get(key, 0) + 1
+        return move
 
     def give_grow(self, grows, board, player):
         """Pick which line to graduate, or which kitten to retire."""
@@ -190,6 +220,27 @@ class Clawed(BoopBot):
                 yield grow, [(0, next_cells, next_hands)]
 
         return self._choose(choices, player, default=grows[0])
+
+    # ----- avoiding loops (idea 6) ----------------------------------------------
+
+    def _forget_old_boards(self, cells, hands):
+        """Clear the memory of handed-over boards once they can't come back.
+
+        Cats are never lost, and every graduation or retirement makes a new
+        one, so a board can only come back while the number of cats stays
+        the same. When that number changes, every remembered board is gone
+        for good. It also changes when a new game starts, which clears the
+        memory for that game.
+        """
+        cats = _cat_count(cells, hands)
+        if cats != self._cats:
+            self._cats = cats
+            self._handed = {}
+
+    def _times_handed(self, outcomes):
+        """How many times we've already left the opponent the board a move leads to."""
+        return min(self._handed.get((tuple(cells), tuple(hands)), 0)
+                   for _, cells, hands in outcomes)
 
     # ----- the search -----------------------------------------------------------
 
@@ -221,6 +272,10 @@ class Clawed(BoopBot):
                 alpha = -WIN - 1  # best score found so far at this depth
                 for option, outcomes in options:
                     score = self._best_outcome(outcomes, player, depth - 1, alpha, WIN + 1)
+                    # Make repeating a board cost more each time (idea 6),
+                    # but leave forced wins and losses as they are.
+                    if abs(score) < WIN - 1000:
+                        score -= REPEAT_PENALTY * self._times_handed(outcomes)
                     scored.append((score, option, outcomes))
                     alpha = max(alpha, score)
             except _OutOfTime:
@@ -376,6 +431,11 @@ def _flatten(board):
     cells = [piece for row in board.board for piece in row]
     hands = [board.hands[0][0], board.hands[0][1], board.hands[1][0], board.hands[1][1]]
     return cells, hands
+
+
+def _cat_count(cells, hands):
+    """How many cats both players have, on the board and in hand."""
+    return cells.count(2) + cells.count(-2) + hands[1] + hands[3]
 
 
 def _legal_moves(cells, hands, player):
