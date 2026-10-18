@@ -9,9 +9,9 @@ class Player(BoopBot):
 
     while True:
       try:
-        row = input("Row: ")
-        col = input("Column: ")
-        type = input("Kitten (1) or cat (2): ")
+        row = int(input("Row: "))
+        col = int(input("Column: "))
+        type = int(input("Kitten (1) or cat (2): "))
         sign = 1 if player == 2 else -1
         my_move = (sign * type, to_index((row,col)))
         if not my_move in moves:

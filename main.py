@@ -148,7 +148,9 @@ def choose_bot(color):
                 return name
         print("That's not on the list, try again.")
 
-def ask_games():
+def ask_games(bot1, bot2):
+    if isinstance(bot1,Player) or isinstance(bot2,Player):
+        return 1
     while True:
         answer = input("How many games? (press Enter for 1): ").strip()
         if answer == "":
@@ -185,7 +187,7 @@ def main():
     print()
     blue = choose_bot("Blue")
     orange = choose_bot("Orange")
-    games = ask_games()
+    games = ask_games(blue, orange)
     if games > 1:
         run_many(blue, orange, games)
         return
