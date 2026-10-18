@@ -1,0 +1,41 @@
+from bot import BoopBot
+from rules import IllegalMove
+
+class Player(BoopBot):
+
+  def give_move(self, moves, board, player):
+
+    while True:
+      try:
+        row = input("Row: ")
+        col = input("Column: ")
+        type = input("Kitten (1) or cat (2): ")
+        sign = 1 if player == 2 else -1
+        my_move = (sign * type, to_index((row,col)))
+        if not my_move in moves:
+          raise IllegalMove("Attempted to make a move that did not exist.")
+        return my_move
+      except Exception:
+        print("Please input a legal move.")
+
+  def give_grow(self, grows, board, player):
+
+    print("You have the following actions available.")
+
+    choices = []
+
+    for i in range(len(grows)):
+      grow = grows[i]
+      printf("{i}.",end="")
+      if grow[0] == "grow":
+        a = to_coord(grow[1][1])
+        b = to_coord(grow[1][2])
+        c = to_coord(grow[1][3])
+        printf("You may graduate the pieces at ({a[1]},{a[1]}), ({b[1]},{b[1]}), and ({c[1]},{c[1]}).")
+      if grow[0] == "remove":
+        printf("You may remove (and graduate, if possible) the piece at {to_coord(grow[1])}.")
+      choices.append((i,grow))
+
+    choice = input("Please put the number of your action: ")
+    return choices.sort()[choice - 1]
+    
