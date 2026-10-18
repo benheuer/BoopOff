@@ -22,7 +22,7 @@ class Player(BoopBot):
 
   def give_grow(self, grows, board, player):
 
-    print("You have the following actions available.")
+    print("You have the following actions available:")
 
     choices = []
 
@@ -30,11 +30,11 @@ class Player(BoopBot):
       grow = grows[i]
       print(f"{i}.",end="")
       if grow[0] == "grow":
-        a = to_coord(grow[1][1])
-        b = to_coord(grow[1][2])
-        c = to_coord(grow[1][3])
+        a = to_coord(grow[1][0])
+        b = to_coord(grow[1][1])
+        c = to_coord(grow[1][2])
         print(f"You may graduate the pieces at ({a[1]},{a[1]}), ({b[1]},{b[1]}), and ({c[1]},{c[1]}).")
-      if grow[0] == "remove":
+      elif grow[0] == "remove":
         print(f"You may remove (and graduate, if possible) the piece at {to_coord(grow[1])}.")
       choices.append((i,grow))
 
