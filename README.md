@@ -55,3 +55,7 @@ Use `CatGPT(search_depth=3)` to search our move, the opponent's reply, and our f
 ### ClawedBOT.py ###
 
 `Clawed` is a bot written by Claude, hence the name. It looks several turns ahead, assuming the opponent always picks their best reply, and skips lines of play that can't change its decision. It keeps searching one turn deeper until its time runs out: `Clawed(time_limit=1.0)` thinks for one second per decision (default). `Clawed(time_limit=None, max_depth=n)` always looks exactly `n` turns ahead, and so always plays the same way against the same moves. The top of `ClawedBOT.py` explains the algorithm step by step. `test_clawed.py` checks that Clawed's own copy of the rules agrees with `rules.py`.
+
+### BrucieBooperBOT.py ###
+
+Bruce's bot. Not much to say right now as it is not built.
