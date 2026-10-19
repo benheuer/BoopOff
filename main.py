@@ -8,6 +8,7 @@ from ByteSizedBOT import ByteSized
 from MeowddledBOT import Meowddled
 from CatGPTBOT import CatGPT
 from ClawedBOT import Clawed
+from BrucieBooperBOT import BrucieBooper
 from Player import Player
 
 BOTS = {
@@ -15,6 +16,7 @@ BOTS = {
     "Meowddled": Meowddled,
     "CatGPT": CatGPT,
     "Clawed": Clawed,
+    "brucieBooper": BrucieBooper,
     "Player": Player
 }
 DELAY = 1
