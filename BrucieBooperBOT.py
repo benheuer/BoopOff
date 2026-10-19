@@ -3,6 +3,8 @@ from rules import Board, get_lines, to_coord
 from random import choice
 from copy import deepcopy
 
+# Bruce bot just scaffolding rn
+
 class BrucieBooper(BoopBot):
 
     def give_move(self, moves, board, player): # Searches its next turn for partial lines
