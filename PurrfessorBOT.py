@@ -1,6 +1,5 @@
 from bot import BoopBot
 from rules import Board, get_lines, to_coord, IllegalMove
-from random import choice
 
 class Purrfessor(BoopBot):
 
@@ -10,26 +9,34 @@ class Purrfessor(BoopBot):
     for move in moves:
       state = copy_board(board)
       state.play(move)
+      over = finish_turn(state, player)
       values = []
 
-      try:
-        replies = state.get_legals(3 - player)
-      except IllegalMove: # The opponent has no piece left to play
-        replies = []
+      replies = []
+      if not over:
+        try:
+          replies = state.get_legals(3 - player)
+        except IllegalMove: # The opponent has no piece left to play
+          replies = []
 
       for after in replies:
         substate = copy_board(state)
         substate.play(after)
+        over = finish_turn(substate, 3 - player)
         subvalues = []
 
-        try:
-          lasts = substate.get_legals(player)
-        except IllegalMove: # We have no piece left to play (we have not simulated the removal yet)
-          lasts = []
+        lasts = []
+        if not over:
+          try:
+            lasts = substate.get_legals(player)
+          except IllegalMove: # We have no piece left to play
+            lasts = []
 
         for last in lasts:
           sub2state = copy_board(substate)
           sub2state.play(last)
+          finish_turn(sub2state, player)
+
           subvalues.append(evaluate(sub2state,player))
 
         if subvalues:
@@ -51,7 +58,49 @@ class Purrfessor(BoopBot):
 
   def give_grow(self, grows, board, player):
 
-      return choice(grows) ### Just chooses a random grow right now...
+    best = grows[0]
+    best_score = float('-inf')
+
+    for grow in grows:
+      after = copy_board(board)
+      after.grow(grow)
+      score = evaluate(after, player)
+      if score > best_score:
+        best_score = score
+        best = grow
+
+    return best
+
+### Finishing a turn in the search (same rules as main.py) ###
+
+def own_growths(board, player):
+  # get_grows() lists both colours, so keep only this player's.
+  # A line to graduate comes first; a removal is only offered when there is no line.
+  sign = -1 if player == 1 else 1
+  lines, removes = [], []
+
+  for g in board.get_grows():
+    index = g[1][0] if g[0] == "grow" else g[1]
+    row, col = to_coord(index)
+    if board.board[row][col] * sign <= 0:
+      continue
+    if g[0] == "grow":
+      lines.append(g)
+    else:
+      removes.append(g)
+
+  return lines or removes
+
+def finish_turn(board, player):
+  # Applies the mover's graduation or removal after a placement. Returns True if the game is over.
+  if board.is_terminal():
+    return True
+
+  growths = own_growths(board, player)
+  if growths:
+    board.grow(growths[0])  # Just takes the first option while searching, to keep it quick
+
+  return False
 
 ### Value Outputs for Each Situation ###
 
@@ -99,11 +148,11 @@ def evaluate(board,player):
         value += TWOBYTWO * abs(b)
       else:
         value -= TWOBYTWO * abs(b)
-    elif (a == c):
-      if play_sign == sign(b):
-        value += TWOSEP * abs(b)
+    elif (a == c) and a != 0 and b == 0:
+      if play_sign == sign(a):
+        value += TWOSEP * abs(a)
       else:
-        value -= TWOSEP * abs(b)
+        value -= TWOSEP * abs(a)
     
 
   for row in range(6):
@@ -115,7 +164,7 @@ def evaluate(board,player):
           value += CATONEDGE
 
   value += board.hands[player - 1][1] * CATSINHAND
-  value -= board.hands[3 - player][1] * OPPCATSINHAND
+  value -= board.hands[2 - player][1] * OPPCATSINHAND
 
   for row in board.board:
     for col in row:
