@@ -10,12 +10,14 @@ from CatGPTBOT import CatGPT
 from ClawedBOT import Clawed
 from BrucieBooperBOT import BrucieBooper
 from Player import Player
+from PurrfessorBOT import Purrfessor
 
 BOTS = {
     "ByteSized": ByteSized,
     "Meowddled": Meowddled,
     "CatGPT": CatGPT,
     "Clawed": Clawed,
+    "Purrfessor": Purrfessor,
     "brucieBooper": BrucieBooper,
     "Player": Player
 }
