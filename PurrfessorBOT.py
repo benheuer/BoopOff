@@ -57,8 +57,9 @@ class Purrfessor(BoopBot):
 
 CATONEDGE = 1
 WIN = 1000000000000000000000000
-TWOBYTWO = 4
-THREEROW = 8
+TWOBYTWO = 8
+TWOSEP = 4
+THREEROW = 12
 
 LINES = get_lines()
 
@@ -84,6 +85,22 @@ def evaluate(board,player):
         value += WIN
       else:
         value -= WIN
+    if (a == b and b == c) and abs(a) == 1:
+      if play_sign == sign(a):
+        value += THREEROW
+      else:
+        value -= THREEROW
+    elif (a == b) or (b == c):
+      if play_sign == sign(b):
+        value += TWOBYTWO * abs(b)
+      else:
+        value -= TWOBYTWO * abs(b)
+    elif (a == c):
+      if play_sign == sign(b):
+        value += TWOSEP * abs(b)
+      else:
+        value -= TWOSEP * abs(b)
+    
 
   for row in range(6):
     for col in range(6):
