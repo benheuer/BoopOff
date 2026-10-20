@@ -85,7 +85,7 @@ def evaluate(board,player):
         value += WIN
       else:
         value -= WIN
-    if (a == b and b == c) and abs(a) == 1:
+    if (a == b and b == c) and abs(a) >= 1:
       if play_sign == sign(a):
         value += THREEROW
       else:
