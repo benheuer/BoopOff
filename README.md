@@ -32,7 +32,7 @@ Run it - pretty self explanatory. Claude AI wrote most of it.
 
 ### bot.py ###
 
-All bots created for said competition must be subclasses of the simple BoopBot abstract class included here so the competition can be run properly.
+All bots created for said competition must be subclasses of the simple BoopBot abstract class included here so the competition can be run properly. Each bot is passed a move tuple or growth tuple (see rules.py), the board, and their player.
 
 ### Player.py ##
 
