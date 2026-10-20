@@ -57,9 +57,12 @@ class Purrfessor(BoopBot):
 
 CATONEDGE = 1
 WIN = 1000000000000000000000000
-TWOBYTWO = 10
-TWOSEP = 5
-THREEROW = 20
+TWOBYTWO = 15
+TWOSEP = 10
+THREEROW = 25
+CATSINHAND = 5
+MYPIECEONBOARD = 3
+OPPPIECEONBOARD = 2
 
 LINES = get_lines()
 
@@ -109,5 +112,15 @@ def evaluate(board,player):
           value -= CATONEDGE
         else:
           value += CATONEDGE
+
+  value += board.hands[player - 1][1] * CATSINHAND
+
+  for row in board.board:
+    for col in row:
+      if col != 0 and sign(col) == play_sign:
+        value += MYPIECEONBOARD * abs(col)
+      elif col != 0 and sign(col) != play_sign:
+        value -= OPPPIECEONBOARD * abs(col)
+
 
   return value
