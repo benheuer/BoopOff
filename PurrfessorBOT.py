@@ -18,6 +18,8 @@ class Purrfessor(BoopBot):
           replies = state.get_legals(3 - player)
         except IllegalMove: # The opponent has no piece left to play
           replies = []
+      else:
+        return move
 
       for after in replies:
         substate = copy_board(state)
@@ -107,11 +109,11 @@ def finish_turn(board, player):
 CATONEDGE = 1
 WIN = 1000000000000000000000000000000
 TWOBYTWO = 15
-TWOSEP = 10
-THREEROW = 25
-CATSINHAND = 7
-OPPCATSINHAND = 5
-MYPIECEONBOARD = 4
+TWOSEP = 8
+THREEROW = 20
+CATS = 30
+OPPCATSINHAND = 9
+KITTENS = 4
 OPPPIECEONBOARD = 2
 
 LINES = get_lines()
@@ -163,13 +165,16 @@ def evaluate(board,player):
         else:
           value += CATONEDGE
 
-  value += board.hands[player - 1][1] * CATSINHAND
+  value += board.hands[player - 1][1] * CATS
   value -= board.hands[2 - player][1] * OPPCATSINHAND
 
   for row in board.board:
     for col in row:
       if col != 0 and sign(col) == play_sign:
-        value += MYPIECEONBOARD * abs(col)
+        if abs(col) == 2:
+          value += CATS
+        else:
+          value += KITTENS
       elif col != 0 and sign(col) != play_sign:
         value -= OPPPIECEONBOARD * abs(col)
 
