@@ -58,7 +58,7 @@ Use `CatGPT(search_depth=3)` to search our move, the opponent's reply, and our f
 
 ### BrucieBooperBOT.py ###
 
-Bruce's bot. Not much to say right now as it is not built.
+This bot is the coolest bot out of all of the bots. It's pretty obvious who made it. It's a little chatty right now, so I hope that's OK. I might consider using AI just to get the formatting working, but I haven't yet.
 
 ### Cat-astrophicBOT.py ###
 
