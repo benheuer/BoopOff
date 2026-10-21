@@ -1,4 +1,4 @@
-## Purrfessor: A Boop-Playing Engine ##
+## BoopOff: A Boop-Playing Engine ##
 
 GNU license. Below are laid the tools included within.
 
@@ -28,7 +28,7 @@ The object also contains a `hands` property - two two-item lists for counting ki
 
 ### main.py ###
 
-Run it - pretty self explanatory. Claude AI wrote most of it.
+Run it - pretty self explanatory. Claude AI wrote most of it. Each turn has a 1.5 second time cap - make sure you run that fast!
 
 ### bot.py ###
 
@@ -63,6 +63,10 @@ This bot is the coolest bot out of all of the bots. It's pretty obvious who made
 ### Cat-astrophicBOT.py ###
 
 This is Everett's main bot, currently unbuilt.
+
+### PurrfessorBOT.py ###
+
+A bot that simulates every possiblity at depth three, with crude minimaxing.
 
 ### GemewniBOT.py ###
 
