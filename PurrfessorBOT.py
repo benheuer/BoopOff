@@ -5,21 +5,24 @@ class Purrfessor(BoopBot):
 
   def give_move(self, moves, board, player): ### Simulates every possible three move outcome
     min_score = float('-inf')
+    best = moves[0]
 
     for move in moves:
       state = copy_board(board)
       state.play(move)
-      over = finish_turn(state, player)
+      winner = state.is_terminal()
+      if winner == player:
+        return move
+      if winner:
+        continue
+      finish_turn(state, player)
       values = []
 
       replies = []
-      if not over:
-        try:
-          replies = state.get_legals(3 - player)
-        except IllegalMove: # The opponent has no piece left to play
-          replies = []
-      else:
-        return move
+      try:
+        replies = state.get_legals(3 - player)
+      except IllegalMove: # The opponent has no piece left to play
+        replies = []
 
       for after in replies:
         substate = copy_board(state)
@@ -106,77 +109,65 @@ def finish_turn(board, player):
 
 ### Value Outputs for Each Situation ###
 
-CATONEDGE = 1
 WIN = 1000000000000000000000000000000
 TWOBYTWO = 15
 TWOSEP = 8
 THREEROW = 20
 CATS = 30
 OPPCATSINHAND = 9
-KITTENS = 4
-OPPPIECEONBOARD = 2
+KITTENS = 5
+OPPPIECEONBOARD = 5
 
 LINES = get_lines()
+LINE_IDX = [tuple(l) for l in LINES]   # flat indices (row*6+col), computed once
+RING = [min(i // 6, 5 - i // 6, i % 6, 5 - i % 6) for i in range(36)] # Reads the board and assigns values to the different rings
+RING_VALUE = {0: -1, 1: 0, 2: 1} # <- point values for the rings
 
 def copy_board(b):
   return Board([row[:] for row in b.board], [h[:] for h in b.hands])
 
 def evaluate(board,player):
 
-  pos = board.board
+  flat = [x for row in board.board for x in row]   # flatten the board once
   value = 0
   play_sign = 1 if player == 2 else -1
 
-  def sign(n):
-    return (n > 0) - (n < 0)
+  for i, j, k in LINE_IDX:
+    a = flat[i]
+    b = flat[j]
+    c = flat[k]
 
-  for line in LINES:
-    a = pos[to_coord(line[0])[0]][to_coord(line[0])[1]]
-    b = pos[to_coord(line[1])[0]][to_coord(line[1])[1]]
-    c = pos[to_coord(line[2])[0]][to_coord(line[2])[1]]
-
-    if (a == b and b == c) and abs(a) == 2:
-      if play_sign == sign(a):
-        value += WIN
-      else:
-        value -= WIN
-    if (a == b and b == c) and abs(a) >= 1:
-      if play_sign == sign(a):
-        value += THREEROW
-      else:
-        value -= THREEROW
-    elif (a == b) or (b == c):
-      if play_sign == sign(b):
-        value += TWOBYTWO * abs(b)
-      else:
-        value -= TWOBYTWO * abs(b)
-    elif (a == c) and a != 0 and b == 0:
-      if play_sign == sign(a):
+    if a == b and b == c:
+      if a == 0:
+        continue
+      mine = (a > 0) == (play_sign > 0)
+      if abs(a) == 2:
+        value += WIN if mine else -WIN
+      value += THREEROW if mine else -THREEROW
+    elif a == b or b == c:
+      if b != 0:
+        if (b > 0) == (play_sign > 0):
+          value += TWOBYTWO * abs(b)
+        else:
+          value -= TWOBYTWO * abs(b)
+    elif a == c and a != 0 and b == 0:
+      if (a > 0) == (play_sign > 0):
         value += TWOSEP * abs(a)
       else:
         value -= TWOSEP * abs(a)
-    
 
-  for row in range(6):
-    for col in range(6):
-      if (row in [0,5] or col in [0,5]) and (pos[row][col] != 0): # Small boosts for pieces on edge
-        if play_sign == sign(pos[row][col]):
-          value -= CATONEDGE
-        else:
-          value += CATONEDGE
+  for index, x in enumerate(flat):
+    if x == 0:
+      continue
+    mine = (x > 0) == (play_sign > 0)
+    r = RING_VALUE[RING[index]]
+    value += r if mine else -r
+    if mine:
+      value += CATS if abs(x) == 2 else KITTENS
+    else:
+      value -= OPPPIECEONBOARD * abs(x)
 
   value += board.hands[player - 1][1] * CATS
   value -= board.hands[2 - player][1] * OPPCATSINHAND
-
-  for row in board.board:
-    for col in row:
-      if col != 0 and sign(col) == play_sign:
-        if abs(col) == 2:
-          value += CATS
-        else:
-          value += KITTENS
-      elif col != 0 and sign(col) != play_sign:
-        value -= OPPPIECEONBOARD * abs(col)
-
 
   return value

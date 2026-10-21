@@ -21,7 +21,9 @@ BOTS = {
     "brucieBooper": BrucieBooper,
     "Player": Player
 }
-DELAY = 1
+DELAY = 1            # pause after each board shown (only used when PACE_MOVES is False)
+PACE_MOVES = True    # True: every turn takes MOVE_TIME seconds in total (thinking time counts toward it)
+MOVE_TIME = 1.5      # seconds per turn when PACE_MOVES is on. Set PACE_MOVES = False to use DELAY instead.
 TURN_CAP = 300
 # Repetition draw: after each turn, if the position matches the position this many plies back
 # (every one of these), the game is stuck in a loop and is called a draw.
@@ -68,7 +70,15 @@ def show(board, text, verbose=True):
     print(text)
     print(board)
     print(f"Hands [kittens, cats]   blue: {board.hands[0]}   orange: {board.hands[1]}\n")
-    time.sleep(DELAY)
+    if not PACE_MOVES:
+        time.sleep(DELAY)
+
+def pace(turn_start, verbose=True):
+    """Waits out whatever is left of MOVE_TIME, counting from the start of the turn."""
+    if verbose and PACE_MOVES:
+        left = MOVE_TIME - (time.time() - turn_start)
+        if left > 0:
+            time.sleep(left)
 
 def run_game(blue, orange, verbose=True, count=False):
     board = Board([[0] * 6 for _ in range(6)], [[8, 0], [8, 0]])
@@ -78,6 +88,7 @@ def run_game(blue, orange, verbose=True, count=False):
     TURNCOUNT = 0
     history = deque(maxlen=max(REPEAT_PLIES))     # positions after the last few turns
     for turn in range(1, TURN_CAP + 1):
+        turn_start = time.time()
         try:
             legals = board.get_legals(player)
         except IllegalMove:
@@ -103,6 +114,7 @@ def run_game(blue, orange, verbose=True, count=False):
 
         piece, index = move
         row, col = to_coord(index)
+        pace(turn_start, verbose)       # show the placement at the end of its MOVE_TIME
         show(board, f"Turn {turn}: {COLORS[player]} places a {PIECES[piece]} at row {row}, col {col}", verbose)
 
         winner = board.is_terminal()
@@ -111,8 +123,10 @@ def run_game(blue, orange, verbose=True, count=False):
                 return winner, TURNCOUNT
             return winner
 
+
         grows = own_grows(board, player)
         if grows:
+            grow_start = time.time()    # the graduation/removal gets its own MOVE_TIME too
             try:
                 choice = clean_grow(bots[player].give_grow(list(grows), copy.deepcopy(board), player))
             except Exception as e:
@@ -127,6 +141,7 @@ def run_game(blue, orange, verbose=True, count=False):
                 return 3 - player
             text = describe_grow(board, player, choice)
             board.grow(choice)
+            pace(grow_start, verbose)   # show the graduation at the end of its own MOVE_TIME
             show(board, text, verbose)
 
         # history[-1] is one ply ago, history[-2] two plies ago, and so on.

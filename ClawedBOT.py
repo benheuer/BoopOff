@@ -87,6 +87,7 @@ import time
 
 from bot import BoopBot
 from rules import get_lines
+from main import MOVE_TIME
 
 
 # A win is worth far more than any normal position, so the search always
@@ -151,7 +152,7 @@ class _OutOfTime(Exception):
 class Clawed(BoopBot):
     """Searches as many turns ahead as it can within a time limit."""
 
-    def __init__(self, time_limit=0.4, max_depth=12):
+    def __init__(self, time_limit=MOVE_TIME, max_depth=12):
         """Set how long Clawed may think, and how deep it may look.
 
         time_limit is the number of seconds per decision. max_depth is the
