@@ -70,9 +70,11 @@ class BrucieBooper(BoopBot):
             r, c = to_coord(locale[0] if kind == "grow" else locale)
 
             if board.board[r][c] > 0 and player == 2:
+                print("ataktoush")
                 return grow
 
             elif board.board[r][c] < 0 and player == 1:
+                print("parryrepostoush")
                 return grow
 
         return grows[0]
