@@ -63,3 +63,7 @@ Bruce's bot. Not much to say right now as it is not built.
 ### Cat-astrophicBOT.py ###
 
 This is Everett's main bot, currently unbuilt.
+
+### GemewniBOT.py ###
+
+This bot is going to be written by Gemini, hence the name. It does nothing right now because it has no code.
