@@ -7,7 +7,7 @@ from rules import Board, IllegalMove, to_coord
 from ByteSizedBOT import ByteSized
 from MeowddledBOT import Meowddled
 from CatGPTBOT import CatGPT
-#from ClawedBOT import Clawed
+from ClawedBOT import Clawed
 from BrucieBooperBOT import BrucieBooper
 from Player import Player
 from PurrfessorBOT import Purrfessor
