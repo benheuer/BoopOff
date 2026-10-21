@@ -28,7 +28,7 @@ The object also contains a `hands` property - two two-item lists for counting ki
 
 ### main.py ###
 
-Run it - pretty self explanatory. Claude AI wrote most of it. Each turn has a 1.5 second time cap - make sure you run that fast!
+Run it - pretty self explanatory. Claude AI wrote most of it. Each turn has a 1.5 second time cap - make sure you run pretty fast plz!
 
 ### bot.py ###
 
