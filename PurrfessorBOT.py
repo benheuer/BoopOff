@@ -50,20 +50,20 @@ class Purrfessor(BoopBot):
     
         return best
 
-  def give_grow(self, grows, board, player): # mini one-depth search (big search above will handle win lines and such)
+    def give_grow(self, grows, board, player): # mini one-depth search (big search above will handle win lines and such)
 
-    best = grows[0]
-    best_score = float('-inf')
+      best = grows[0]
+      best_score = float('-inf')
 
-    for grow in grows:
-      after = copy_board(board)
-      after.grow(grow)
-      score = evaluate(after, player)
-      if score > best_score:
-        best_score = score
-        best = grow
+      for grow in grows:
+        after = copy_board(board)
+        after.grow(grow)
+        score = evaluate(after, player)
+        if score > best_score:
+          best_score = score
+          best = grow
 
-    return best
+      return best
 
 def own_growths(board, player):
   # get_grows() lists both colors, so keep only this player's.
