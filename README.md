@@ -59,3 +59,7 @@ Use `CatGPT(search_depth=3)` to search our move, the opponent's reply, and our f
 ### BrucieBooperBOT.py ###
 
 Bruce's bot. Not much to say right now as it is not built.
+
+### Cat-astrophicBOT.py ###
+
+This is Everett's main bot, currently unbuilt.
