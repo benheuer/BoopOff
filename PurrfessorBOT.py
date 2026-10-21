@@ -3,65 +3,54 @@ from rules import Board, get_lines, to_coord, IllegalMove
 
 class Purrfessor(BoopBot):
 
-  def give_move(self, moves, board, player): ### Simulates every possible three move outcome
+    def give_move(self, moves, board, player):
     min_score = float('-inf')
     best = moves[0]
 
-    for move in moves:
-      state = copy_board(board)
-      state.play(move)
+    for _, move, state in ranked(board, moves, player, player, True):
       winner = state.is_terminal()
       if winner == player:
         return move
       if winner:
         continue
-      finish_turn(state, player)
       values = []
 
-      replies = []
       try:
         replies = state.get_legals(3 - player)
-      except IllegalMove: # The opponent has no piece left to play
+      except IllegalMove:
         replies = []
 
-      for after in replies:
-        substate = copy_board(state)
-        substate.play(after)
-        over = finish_turn(substate, 3 - player)
+      for _, after, substate in ranked(state, replies, 3 - player, player, False):
         subvalues = []
-
         lasts = []
-        if not over:
+        if not substate.is_terminal():
           try:
             lasts = substate.get_legals(player)
-          except IllegalMove: # We have no piece left to play
+          except IllegalMove:
             lasts = []
 
         for last in lasts:
           sub2state = copy_board(substate)
           sub2state.play(last)
           finish_turn(sub2state, player)
+          v = evaluate(sub2state, player)
+          subvalues.append(v)
+          if values and v >= min(values):   # the cutoff from #1
+            break
 
-          subvalues.append(evaluate(sub2state,player))
-
-        if subvalues:
-          values.append(max(subvalues))
-        else:
-          values.append(evaluate(substate,player))
-
+        values.append(max(subvalues) if subvalues else evaluate(substate, player))
         if values[-1] <= min_score:
           break
 
       if not values:
-        values.append(evaluate(state,player))
-
+        values.append(evaluate(state, player))
       if min(values) > min_score:
         min_score = min(values)
         best = move
 
     return best
 
-  def give_grow(self, grows, board, player):
+  def give_grow(self, grows, board, player): # mini one-depth search (big search above will handle win lines and such)
 
     best = grows[0]
     best_score = float('-inf')
@@ -76,11 +65,9 @@ class Purrfessor(BoopBot):
 
     return best
 
-### Finishing a turn in the search (same rules as main.py) ###
-
 def own_growths(board, player):
-  # get_grows() lists both colours, so keep only this player's.
-  # A line to graduate comes first; a removal is only offered when there is no line.
+  # get_grows() lists both colors, so keep only this player's.
+  # We want to grow 3 over growing 1 (usually, hopefully)
   sign = -1 if player == 1 else 1
   lines, removes = [], []
 
@@ -95,6 +82,16 @@ def own_growths(board, player):
       removes.append(g)
 
   return lines or removes
+
+def ranked(state, moves, mover, me, best_first): # A little thing that helps my code find the better replies first so it can cut bad ones early. Runs all the necesary updates to the board, so that shortened my code a bit above in give_move()
+  scored = []
+  for m in moves:
+    s = copy_board(state)
+    s.play(m)
+    finish_turn(s, mover)
+    scored.append((evaluate(s, me), m, s))
+  scored.sort(key=lambda t: t[0], reverse=best_first)   # key= so boards never get compared
+  return scored
 
 def finish_turn(board, player):
   # Applies the mover's graduation or removal after a placement. Returns True if the game is over.
