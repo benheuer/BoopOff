@@ -4,51 +4,51 @@ from rules import Board, get_lines, to_coord, IllegalMove
 class Purrfessor(BoopBot):
 
     def give_move(self, moves, board, player):
-    min_score = float('-inf')
-    best = moves[0]
-
-    for _, move, state in ranked(board, moves, player, player, True):
-      winner = state.is_terminal()
-      if winner == player:
-        return move
-      if winner:
-        continue
-      values = []
-
-      try:
-        replies = state.get_legals(3 - player)
-      except IllegalMove:
-        replies = []
-
-      for _, after, substate in ranked(state, replies, 3 - player, player, False):
-        subvalues = []
-        lasts = []
-        if not substate.is_terminal():
+        min_score = float('-inf')
+        best = moves[0]
+    
+        for _, move, state in ranked(board, moves, player, player, True):
+          winner = state.is_terminal()
+          if winner == player:
+            return move
+          if winner:
+            continue
+          values = []
+    
           try:
-            lasts = substate.get_legals(player)
+            replies = state.get_legals(3 - player)
           except IllegalMove:
+            replies = []
+    
+          for _, after, substate in ranked(state, replies, 3 - player, player, False):
+            subvalues = []
             lasts = []
-
-        for last in lasts:
-          sub2state = copy_board(substate)
-          sub2state.play(last)
-          finish_turn(sub2state, player)
-          v = evaluate(sub2state, player)
-          subvalues.append(v)
-          if values and v >= min(values):   # the cutoff from #1
-            break
-
-        values.append(max(subvalues) if subvalues else evaluate(substate, player))
-        if values[-1] <= min_score:
-          break
-
-      if not values:
-        values.append(evaluate(state, player))
-      if min(values) > min_score:
-        min_score = min(values)
-        best = move
-
-    return best
+            if not substate.is_terminal():
+              try:
+                lasts = substate.get_legals(player)
+              except IllegalMove:
+                lasts = []
+    
+            for last in lasts:
+              sub2state = copy_board(substate)
+              sub2state.play(last)
+              finish_turn(sub2state, player)
+              v = evaluate(sub2state, player)
+              subvalues.append(v)
+              if values and v >= min(values):   # the cutoff from #1
+                break
+    
+            values.append(max(subvalues) if subvalues else evaluate(substate, player))
+            if values[-1] <= min_score:
+              break
+    
+          if not values:
+            values.append(evaluate(state, player))
+          if min(values) > min_score:
+            min_score = min(values)
+            best = move
+    
+        return best
 
   def give_grow(self, grows, board, player): # mini one-depth search (big search above will handle win lines and such)
 
