@@ -87,8 +87,6 @@ import time
 
 from bot import BoopBot
 from rules import get_lines
-from main import MOVE_TIME
-
 
 # A win is worth far more than any normal position, so the search always
 # prefers a win over any material advantage.
@@ -100,6 +98,9 @@ REPEAT_PENALTY = 30
 
 # All 80 three-in-a-row lines on the board, as triples of cell numbers.
 LINES = get_lines()
+
+# Set this to the value in main. Cannot import bc of circular imports.
+MOVE_TIME = 1.5
 
 
 def _build_neighbours():
