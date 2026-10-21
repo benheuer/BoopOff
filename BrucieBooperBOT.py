@@ -59,7 +59,7 @@ class BrucieBooper(BoopBot):
         best = max(v for v, _ in results)
         dialogue = ["Take this!", "Clever phrase here!", "I coded a knockoff of your bot!", "Its final... brucieBooper WINS!!!", "WAHAHA", "You aren't ready for my specail attack."]
         print(random.choice(dialogue))
-        time.wait(.2)
+        time.sleep(.2)
         return choice([m for v, m in results if v == best])
 
     
