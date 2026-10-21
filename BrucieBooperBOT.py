@@ -1,3 +1,5 @@
+import random
+import time
 from bot import BoopBot
 from rules import Board, get_lines, to_coord
 from random import choice
@@ -55,6 +57,9 @@ class BrucieBooper(BoopBot):
             results.append((value, move))
         
         best = max(v for v, _ in results)
+        dialogue = ["Take this!", "Clever phrase here!", "I coded a knockoff of your bot!", "Its final... brucieBooper WINS!!!", "WAHAHA", "You aren't ready for my specail attack."]
+        time.wait(.2)
+        print(random.choice(dialogue))
         return choice([m for v, m in results if v == best])
 
     
