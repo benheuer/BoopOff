@@ -1,9 +1,12 @@
 from bot import BoopBot
 from rules import Board, get_lines, to_coord, IllegalMove
+from random import shuffle
 
 class Purrfessor(BoopBot):
 
     def give_move(self, moves, board, player):
+        moves = list(moves)
+        shuffle(moves)
         min_score = float('-inf')
         best = moves[0]
     
