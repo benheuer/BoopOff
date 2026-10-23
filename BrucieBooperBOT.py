@@ -10,15 +10,15 @@ class BrucieBooper(BoopBot):
     
     #board is a 6x6 array with 0 for basic, -1 and -2 for player == 1, and 1 and 2 for player == 2
     #player == 1 or 2
-def give_move(self, moves, board, player):  # Searches future turns using minimax
-    lines = get_lines()
-    results = []
+    def give_move(self, moves, board, player):  # Searches future turns using minimax
+        lines = get_lines()
+        results = []
 
-    edgeVal = .2
-    kittenVal = .1
-    catVal = .28
+        edgeVal = .2
+        kittenVal = .1
+        catVal = .28
 
-    depth = 3  # Number of plies to search; increase for stronger play
+        depth = 3  # Number of plies to search; increase for stronger play
 
     def evaluate(board):
         value = 0
