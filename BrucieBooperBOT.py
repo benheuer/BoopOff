@@ -165,26 +165,26 @@ class BrucieBooper(BoopBot):
 
             return best
 
-    # Evaluate each possible opening move using the recursive search
-    for move in moves:
-        board1 = deepcopy(board)
-        board1.play(move)
-
-        value = minimax(
-            board1,
-            3 - player,
-            depth - 1,
-            float("-inf"),
-            float("inf")
-        )
-
-        results.append((value, move))
-
+        # Evaluate each possible opening move using the recursive search
+        for move in moves:
+            board1 = deepcopy(board)
+            board1.play(move)
     
-
-    best = max(v for v, _ in results)
-    return choice([m for v, m in results if v == best])
+            value = minimax(
+                board1,
+                3 - player,
+                depth - 1,
+                float("-inf"),
+                float("inf")
+            )
     
+            results.append((value, move))
+    
+        
+    
+        best = max(v for v, _ in results)
+        return choice([m for v, m in results if v == best])
+        
     def give_grow(self, grows, board, player): #Finds first eligible grow - doesn't really care (its a weak bot for a reason)
 
         for grow in grows:
