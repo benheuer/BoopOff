@@ -15,8 +15,8 @@ class BrucieBooper(BoopBot):
         lines = get_lines()
         results = []
 
-        kittenVal=.1
-        catVal=.3
+        kittenVal=.5
+        catVal=2
         
         for move in moves:
             board1 = deepcopy(board)
@@ -62,22 +62,22 @@ class BrucieBooper(BoopBot):
                         if board.board[i][j] != 0:
                             if player == 1:
                                 if board.board[i][j] == -1:
-                                    value += kittenVal
+                                    value += kittenVal/2
                                 if board.board[i][j] == 1:
                                     value -= kittenVal
                                 if board.board[i][j] == -2:
-                                    value += catVal
+                                    value += catVal*1.2
                                 if board.board[i][j] == 2:
                                     value -= catVal
                             if player == 2:
                                 if board.board[i][j] == -1:
                                     value -= kittenVal
                                 if board.board[i][j] == 1:
-                                    value += kittenVal
+                                    value += kittenVal/2
                                 if board.board[i][j] == -2:
                                     value -= catVal
                                 if board.board[i][j] == 2:
-                                    value += catVal
+                                    value += catVal*1.2
 
             
             results.append((value, move))
