@@ -7,8 +7,6 @@ from copy import deepcopy
 
 class BrucieBooper(BoopBot):
 
-    kittenVal=.1
-    catVal=.3
     
     #board is a 6x6 array with 0 for basic, -1 and -2 for player == 1, and 1 and 2 for player == 2
     #player == 1 or 2
@@ -17,7 +15,8 @@ class BrucieBooper(BoopBot):
         lines = get_lines()
         results = []
 
-        
+        kittenVal=.1
+        catVal=.3
         
         for move in moves:
             board1 = deepcopy(board)
