@@ -181,7 +181,7 @@ class BrucieBooper(BoopBot):
         results.append((value, move))
 
     if not results:
-        return None
+        return 
 
     best = max(v for v, _ in results)
     return choice([m for v, m in results if v == best])
