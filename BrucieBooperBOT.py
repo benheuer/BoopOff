@@ -5,31 +5,29 @@ from rules import Board, get_lines, to_coord
 from random import choice
 from copy import deepcopy
 
-# Bruce bot just scaffolding rn
-
 class BrucieBooper(BoopBot):
 
     def give_move(self, moves, board, player): # Searches its next turn for partial lines
-
+        print(str(self))
         lines = get_lines()
         results = []
 
         for move in moves:
-            state = deepcopy(board)
-            state.play(move)
+            board1 = deepcopy(board)
+            board1.play(move)
             value = 0
             for line in lines:
-                a = state.board[to_coord(line[0])[0]][to_coord(line[0])[1]]
-                b = state.board[to_coord(line[1])[0]][to_coord(line[1])[1]]
-                c = state.board[to_coord(line[2])[0]][to_coord(line[2])[1]]
+                a = board1.board[to_coord(line[0])[0]][to_coord(line[0])[1]]
+                b = board1.board[to_coord(line[1])[0]][to_coord(line[1])[1]]
+                c = board1.board[to_coord(line[2])[0]][to_coord(line[2])[1]]
 
                 if (a == b and b == c) and a != 0:
                     if b > 1 and player == 2:
-                        value += 10000000000
+                        value += 100
                     elif b < -1 and player == 1:
-                        value += 10000000000
+                        value += 100
                     elif (b < -1 and player != 1) or (b > 1 and player != 2):
-                        value -= 10000000000
+                        value -= 100
                     elif b > 0 and player == 2:
                         value += 4
                     elif b < 0 and player == 1:
@@ -53,12 +51,16 @@ class BrucieBooper(BoopBot):
                         value -= 1
                 else:
                     pass
+                for i in board:
+                    #if board[i]
+
             
             results.append((value, move))
         
         best = max(v for v, _ in results)
         dialogue = ["Take this!", "Clever phrase here!", "I coded a knockoff of your bot!", "Its final... brucieBooper WINS!!!", "WAHAHA", "You aren't ready for my specail attack."]
         print(random.choice(dialogue))
+        print("")
         time.sleep(.2)
         return choice([m for v, m in results if v == best])
 
@@ -71,10 +73,16 @@ class BrucieBooper(BoopBot):
 
             if board.board[r][c] > 0 and player == 2:
                 print("ataktoush")
+                time.sleep(.2)
+                print("")
+                time.sleep(.1)
                 return grow
 
             elif board.board[r][c] < 0 and player == 1:
                 print("parryrepostoush")
+                time.sleep(.2)
+                print("")
+                time.sleep(.1)
                 return grow
 
         return grows[0]
