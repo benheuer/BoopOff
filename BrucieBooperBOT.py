@@ -51,7 +51,7 @@ class BrucieBooper(BoopBot):
                         value -= 1
                 else:
                     pass
-                for i in board:
+                #for i in board:
                     #if board[i]
 
             
