@@ -11,7 +11,7 @@ class BrucieBooper(BoopBot):
     #board is a 6x6 array with 0 for basic, -1 and -2 for player == 1, and 1 and 2 for player == 2
     #player == 1 or 2
     def give_move(self, moves, board, player): # Searches its next turn for partial lines
-        print(str(self))
+        #print(str(self))
         lines = get_lines()
         results = []
 
