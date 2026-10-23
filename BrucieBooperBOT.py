@@ -15,7 +15,7 @@ class BrucieBooper(BoopBot):
         lines = get_lines()
         results = []
 
-        edgeVal=4
+        edgeVal=.2
         kittenVal=.1
         catVal=.28
         
