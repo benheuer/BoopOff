@@ -55,16 +55,16 @@ class BrucieBooper(BoopBot):
                     pass
                 for i in range(0, 5):
                     for j in range(0, 5):
-                        if board[i][j] != 0:
+                        if board[i, j] != 0:
                             if player == 1:
-                                if board[i][j] == -1:
+                                if board[i, j] == -1:
                                     value += 0.1
-                                if board[i][j] == 1:
+                                if board[i, j] == 1:
                                     value -= .01
                             if player == 2:
-                                if board[i][j] == -1:
+                                if board[i, j] == -1:
                                     value -= 0.1
-                                if board[i][j] == 1:
+                                if board[i, j] == 1:
                                     value += .01
 
             
