@@ -22,104 +22,110 @@ class BrucieBooper(BoopBot):
         for move in moves:
             board1 = deepcopy(board)
             board1.play(move)
-            value = 0
-            for line in lines:
-                a = board1.board[to_coord(line[0])[0]][to_coord(line[0])[1]]
-                b = board1.board[to_coord(line[1])[0]][to_coord(line[1])[1]]
-                c = board1.board[to_coord(line[2])[0]][to_coord(line[2])[1]]
-
-                if (a == b and b == c) and a != 0:
-                    if b > 1 and player == 2:
-                        value += 100
-                    elif b < -1 and player == 1:
-                        value += 100
-                    elif (b < -1 and player != 1) or (b > 1 and player != 2):
-                        value -= 100
-                    elif b > 0 and player == 2:
-                        value += 4
-                    elif b < 0 and player == 1:
-                        value += 4
-                    else:
-                        value -= 4
-
-                elif (a == b or b == c) and b != 0:
-                    if b > 0 and player == 2:
-                        value += 2
-                    elif b < 0 and player == 1:
-                        value += 2
-                    else:
-                        value -= 2
-                elif (a == c and a != 0):
-                    if a > 0 and player == 2:
-                        value += 1
-                    elif a < 0 and player == 1:
-                        value += 1
-                    else:
-                        value -= 1
-                else:
-                    pass
-                for i in range(0, 5):
-                    for j in range(0, 5):
-                        if board.board[i][j] != 0:
-                            #fix so that it only punishes for player pieces
-                            #if i == 0:
-                                #value -= edgeVal
-                            #if i == 5:
-                                #value -= edgeVal
-                            #if j == 0:
-                                #value -= edgeVal
-                            #if j == 5:
-                                #value -= edgeVal
-                            if player == 1:
-                                if board.board[i][j] == -1:
-                                    value += kittenVal/2
-                                    if i == 0:
-                                        value -= edgeVal
-                                    if i == 5:
-                                        value -= edgeVal
-                                    if j == 0:
-                                        value -= edgeVal
-                                    if j == 5:
-                                        value -= edgeVal
-                                if board.board[i][j] == 1:
-                                    value -= kittenVal
-                                if board.board[i][j] == -2:
-                                    value += catVal*1.2
-                                    if i == 0:
-                                        value -= edgeVal*.75
-                                    if i == 5:
-                                        value -= edgeVal*.75
-                                    if j == 0:
-                                        value -= edgeVal*.75
-                                    if j == 5:
-                                        value -= edgeVal*.75
-                                if board.board[i][j] == 2:
-                                    value -= catVal
-                            if player == 2:
-                                if board.board[i][j] == -1:
-                                    value -= kittenVal
-                                if board.board[i][j] == 1:
-                                    value += kittenVal/2
-                                    if i == 0:
-                                        value -= edgeVal
-                                    if i == 5:
-                                        value -= edgeVal
-                                    if j == 0:
-                                        value -= edgeVal
-                                    if j == 5:
-                                        value -= edgeVal
-                                if board.board[i][j] == -2:
-                                    value -= catVal
-                                if board.board[i][j] == 2:
-                                    value += catVal*1.2
-                                    if i == 0:
-                                        value -= edgeVal*.75
-                                    if i == 5:
-                                        value -= edgeVal*.75
-                                    if j == 0:
-                                        value -= edgeVal*.75
-                                    if j == 5:
-                                        value -= edgeVal*.75
+            value2 = 0
+            legals = board1.get_legals(3-player)
+            for move1 in legals:
+                board2 = deepcopy(board1)
+                board2.play(move)
+                value = 0
+                legals = board2.get_legals(-player)
+                    for line in lines:
+                        a = board1.board[to_coord(line[0])[0]][to_coord(line[0])[1]]
+                        b = board1.board[to_coord(line[1])[0]][to_coord(line[1])[1]]
+                        c = board1.board[to_coord(line[2])[0]][to_coord(line[2])[1]]
+        
+                        if (a == b and b == c) and a != 0:
+                            if b > 1 and player == 2:
+                                value += 100
+                            elif b < -1 and player == 1:
+                                value += 100
+                            elif (b < -1 and player != 1) or (b > 1 and player != 2):
+                                value -= 100
+                            elif b > 0 and player == 2:
+                                value += 4
+                            elif b < 0 and player == 1:
+                                value += 4
+                            else:
+                                value -= 4
+        
+                        elif (a == b or b == c) and b != 0:
+                            if b > 0 and player == 2:
+                                value += 2
+                            elif b < 0 and player == 1:
+                                value += 2
+                            else:
+                                value -= 2
+                        elif (a == c and a != 0):
+                            if a > 0 and player == 2:
+                                value += 1
+                            elif a < 0 and player == 1:
+                                value += 1
+                            else:
+                                value -= 1
+                        else:
+                            pass
+                        for i in range(0, 5):
+                            for j in range(0, 5):
+                                if board.board[i][j] != 0:
+                                    #fix so that it only punishes for player pieces
+                                    #if i == 0:
+                                        #value -= edgeVal
+                                    #if i == 5:
+                                        #value -= edgeVal
+                                    #if j == 0:
+                                        #value -= edgeVal
+                                    #if j == 5:
+                                        #value -= edgeVal
+                                    if player == 1:
+                                        if board.board[i][j] == -1:
+                                            value += kittenVal/2
+                                            if i == 0:
+                                                value -= edgeVal
+                                            if i == 5:
+                                                value -= edgeVal
+                                            if j == 0:
+                                                value -= edgeVal
+                                            if j == 5:
+                                                value -= edgeVal
+                                        if board.board[i][j] == 1:
+                                            value -= kittenVal
+                                        if board.board[i][j] == -2:
+                                            value += catVal*1.2
+                                            if i == 0:
+                                                value -= edgeVal*.75
+                                            if i == 5:
+                                                value -= edgeVal*.75
+                                            if j == 0:
+                                                value -= edgeVal*.75
+                                            if j == 5:
+                                                value -= edgeVal*.75
+                                        if board.board[i][j] == 2:
+                                            value -= catVal
+                                    if player == 2:
+                                        if board.board[i][j] == -1:
+                                            value -= kittenVal
+                                        if board.board[i][j] == 1:
+                                            value += kittenVal/2
+                                            if i == 0:
+                                                value -= edgeVal
+                                            if i == 5:
+                                                value -= edgeVal
+                                            if j == 0:
+                                                value -= edgeVal
+                                            if j == 5:
+                                                value -= edgeVal
+                                        if board.board[i][j] == -2:
+                                            value -= catVal
+                                        if board.board[i][j] == 2:
+                                            value += catVal*1.2
+                                            if i == 0:
+                                                value -= edgeVal*.75
+                                            if i == 5:
+                                                value -= edgeVal*.75
+                                            if j == 0:
+                                                value -= edgeVal*.75
+                                            if j == 5:
+                                                value -= edgeVal*.75
 
             
             results.append((value, move))
