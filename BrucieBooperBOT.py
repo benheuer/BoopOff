@@ -15,6 +15,7 @@ class BrucieBooper(BoopBot):
         lines = get_lines()
         results = []
 
+        edgeVal=.04
         kittenVal=.1
         catVal=.28
         
@@ -60,6 +61,14 @@ class BrucieBooper(BoopBot):
                 for i in range(0, 5):
                     for j in range(0, 5):
                         if board.board[i][j] != 0:
+                            if i == 0:
+                                value -= edgeVal
+                            if i == 5:
+                                value -= edgeVal
+                            if j == 0:
+                                value -= edgeVal
+                            if j == 5:
+                                value -= edgeVal
                             if player == 1:
                                 if board.board[i][j] == -1:
                                     value += kittenVal/2
