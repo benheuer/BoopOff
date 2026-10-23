@@ -7,6 +7,9 @@ from copy import deepcopy
 
 class BrucieBooper(BoopBot):
 
+    kittenVal=.1
+    catVal=.3
+    
     #board is a 6x6 array with 0 for basic, -1 and -2 for player == 1, and 1 and 2 for player == 2
     #player == 1 or 2
     def give_move(self, moves, board, player): # Searches its next turn for partial lines
@@ -14,6 +17,8 @@ class BrucieBooper(BoopBot):
         lines = get_lines()
         results = []
 
+        
+        
         for move in moves:
             board1 = deepcopy(board)
             board1.play(move)
@@ -58,14 +63,22 @@ class BrucieBooper(BoopBot):
                         if board.board[i][j] != 0:
                             if player == 1:
                                 if board.board[i][j] == -1:
-                                    value += 0.1
+                                    value += kittenVal
                                 if board.board[i][j] == 1:
-                                    value -= .01
+                                    value -= kittenVal
+                                if board.board[i][j] == -2:
+                                    value += catVal
+                                if board.board[i][j] == 2:
+                                    value -= catVal
                             if player == 2:
                                 if board.board[i][j] == -1:
-                                    value -= 0.1
+                                    value -= kittenVal
                                 if board.board[i][j] == 1:
-                                    value += .01
+                                    value += kittenVal
+                                if board.board[i][j] == -2:
+                                    value -= catVal
+                                if board.board[i][j] == 2:
+                                    value += catVal
 
             
             results.append((value, move))
