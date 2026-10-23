@@ -7,7 +7,7 @@ from rules import Board, IllegalMove, to_coord, get_lines
 # change these weights to adjust the playstyle
 CENTER_W = 3.0      # reward for pieces near the middle of the board
 CLUSTER_W = 2.0     # reward for each pair of my pieces touching each other
-EXPOSURE_W = 1.5    # penalty for each way one of my pieces could be booped
+EXPOSURE_W = 0.4    # penalty for each way one of my pieces could be booped
 LINE_W = 1.0        # reward for lines (of 3) completeable
 CAT_WEIGHT = 2.0    # cats count this much in every term above
 KITTEN_WEIGHT = 1.0 # kittens count this much in every term above
