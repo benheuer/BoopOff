@@ -15,8 +15,8 @@ class BrucieBooper(BoopBot):
         lines = get_lines()
         results = []
 
-        kittenVal=.5
-        catVal=2
+        kittenVal=.1
+        catVal=.28
         
         for move in moves:
             board1 = deepcopy(board)
