@@ -60,9 +60,9 @@ Use `CatGPT(search_depth=3)` to search our move, the opponent's reply, and our f
 
 This bot is the coolest bot out of all of the bots. It's pretty obvious who made it. It's a little chatty right now, so I hope that's OK. I might consider using AI just to get the formatting working, but I haven't yet.
 
-### Cat-astrophicBOT.py ###
+### Cat_astrophicBOT.py ###
 
-This is Everett's main bot, currently unbuilt.
+A bot that attempts to create a "black hole" in the center of the board in order to make booping harder, thereby making wins easier. Fully human idea, Claude wrote the code just so it wouldn't fail or bug out like crazy (the author does not trust his coding skills).
 
 ### PurrfessorBOT.py ###
 
