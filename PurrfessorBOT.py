@@ -112,15 +112,16 @@ def finish_turn(board, player):
 WIN = 1000000000000000000000000000000
 
 TWOBYTWO = 15
-TWOSEP = 5
+TWOSEP = 3
 THREEROW = 25
-CATS = 30
-OPPCATSINHAND = 20
-KITTENS = 6
-OPPPIECEONBOARD = 8
-PROTECTED = 7
+CATS = 45
+OPPCATSINHAND = 25
+KITTENS = 8
+OPPPIECEONBOARD = 10
+PROTECTED = 5
 
-LDIAG = 7 # More shapes to come with better optimization
+LDIAG = 7
+LORTHO = 10
 
 LINES = get_lines()
 LINE_IDX = [tuple(l) for l in LINES]   # flat indices (row*6+col), computed once
@@ -194,10 +195,15 @@ def evaluate(board,player):
     directions = [2,-12,-2,12]
     for i in directions:
       if index + i >= 0 and index + i <= 35:
-        if flat[index + i] == flat[index + directions[(directions.index(i) + 1) % 4 - 1]] and flat[index + i] != 0:
+        if flat[index + i] == flat[index + directions[(directions.index(i) + 1) % 4 - 1]] and flat[index + i] == x:
           if mine:
             value += LDIAG * abs(x)
           else:
             value -= LDIAG * abs(x)
+        if flat[index + i] == flat[index + directions[(directions.index(i) + 1) % 4 - 1]//2] and flat[index + i] == x:
+          if mine:
+            value += LORTHO * abs(x)
+          else:
+            value -= LORTHO * abs(x)
         
   return value
