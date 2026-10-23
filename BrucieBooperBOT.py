@@ -6,8 +6,11 @@ from random import choice
 from copy import deepcopy
 
 class BrucieBooper(BoopBot):
-
+    afshg=0
+    while afshg != 1:
+        print("billy")
     
+    #this will crash immediately
     #board is a 6x6 array with 0 for basic, -1 and -2 for player == 1, and 1 and 2 for player == 2
     #player == 1 or 2
     def give_move(self, moves, board, player):  # Searches future turns using minimax
