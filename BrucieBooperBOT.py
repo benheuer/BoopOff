@@ -53,8 +53,8 @@ class BrucieBooper(BoopBot):
                         value -= 1
                 else:
                     pass
-                for i in board:
-                    for j in board:
+                for i in range(0, 5):
+                    for j in range(0, 5):
                         if board[i][j] != 0:
                             if player == 1:
                                 if board[i][j] == -1:
