@@ -11,6 +11,7 @@ from ClawedBOT import Clawed
 from BrucieBooperBOT import BrucieBooper
 from Player import Player
 from PurrfessorBOT import Purrfessor
+from Cat_astrophicBOT import Cat_astrophic
 
 BOTS = {
     "ByteSized": ByteSized,
@@ -19,6 +20,7 @@ BOTS = {
     "Clawed": Clawed,
     "Purrfessor": Purrfessor,
     "brucieBooper": BrucieBooper,
+    "Cat_astrophic": Cat_astrophic,
     "Player": Player
 }
 DELAY = 1            # pause after each board shown (only used when PACE_MOVES is False)
