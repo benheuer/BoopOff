@@ -23,7 +23,7 @@ class Purrfessor(BoopBot):
           except IllegalMove:
             replies = []
     
-          for _, after, substate in ranked(state, replies, 3 - player, player, False):
+          for _, _, substate in ranked(state, replies, 3 - player, player, False):
             subvalues = []
             lasts = []
             if not substate.is_terminal():
@@ -110,18 +110,22 @@ def finish_turn(board, player):
 ### Value Outputs for Each Situation ###
 
 WIN = 1000000000000000000000000000000
+
 TWOBYTWO = 15
-TWOSEP = 8
-THREEROW = 20
+TWOSEP = 5
+THREEROW = 25
 CATS = 30
-OPPCATSINHAND = 9
-KITTENS = 5
-OPPPIECEONBOARD = 5
+OPPCATSINHAND = 20
+KITTENS = 6
+OPPPIECEONBOARD = 8
+PROTECTED = 7
+
+LDIAG = 7 # More shapes to come with better optimization
 
 LINES = get_lines()
 LINE_IDX = [tuple(l) for l in LINES]   # flat indices (row*6+col), computed once
 RING = [min(i // 6, 5 - i // 6, i % 6, 5 - i % 6) for i in range(36)] # Reads the board and assigns values to the different rings
-RING_VALUE = {0: -1, 1: 0, 2: 1} # <- point values for the rings
+RING_VALUE = {0: -2, 1: 0, 2: 2} # <- point values for the rings
 
 def copy_board(b):
   return Board([row[:] for row in b.board], [h[:] for h in b.hands])
@@ -170,4 +174,30 @@ def evaluate(board,player):
   value += board.hands[player - 1][1] * CATS
   value -= board.hands[2 - player][1] * OPPCATSINHAND
 
+  for index, x in enumerate(flat):
+    if x == 0:
+      continue
+    mine = (x > 0) == (play_sign > 0)
+    directions = [1,-1,6,-6]
+    for i in directions:
+      if index + i >= 0 and index + i <= 35:
+        if flat[index + i] != 0:
+          if mine:
+            value += PROTECTED * abs(x)
+          else:
+            value -= PROTECTED * abs(x)
+
+  for index, x in enumerate(flat):
+    if x == 0:
+      continue
+    mine = (x > 0) == (play_sign > 0)
+    directions = [2,-12,-2,12]
+    for i in directions:
+      if index + i >= 0 and index + i <= 35:
+        if flat[index + i] == flat[index + directions[(directions.index(i) + 1) % 4 - 1]] and flat[index + i] != 0:
+          if mine:
+            value += LDIAG * abs(x)
+          else:
+            value -= LDIAG * abs(x)
+        
   return value

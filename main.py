@@ -117,7 +117,7 @@ def run_game(blue, orange, verbose=True, count=False):
         piece, index = move
         row, col = to_coord(index)
         pace(turn_start, verbose)       # show the placement at the end of its MOVE_TIME
-        show(board, f"Turn {turn}: {COLORS[player]} places a {PIECES[piece]} at row {row}, col {col}", verbose)
+        show(board, f"Turn {turn}: {COLORS[player]} places a(n) {PIECES[piece]} at row {row}, col {col}", verbose)
 
         winner = board.is_terminal()
         if winner:
