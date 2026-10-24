@@ -113,20 +113,41 @@ WIN = 1000000000000000000000000000000
 
 TWOBYTWO = 15
 TWOSEP = 3
-THREEROW = 25
+THREEROW = 20
 CATS = 45
 OPPCATSINHAND = 25
 KITTENS = 8
 OPPPIECEONBOARD = 10
-PROTECTED = 5
+PROTECTED = 4
 
 LDIAG = 7
 LORTHO = 10
 
 LINES = get_lines()
-LINE_IDX = [tuple(l) for l in LINES]   # flat indices (row*6+col), computed once
+LINE_IDX = [tuple(l) for l in LINES]   # flat indices (row*6+col)
 RING = [min(i // 6, 5 - i // 6, i % 6, 5 - i % 6) for i in range(36)] # Reads the board and assigns values to the different rings
 RING_VALUE = {0: -2, 1: 0, 2: 2} # <- point values for the rings
+
+def build_L_shapes():
+  ldiag, lortho = [], []
+  for x, y, z in LINE_IDX:
+    (xr, xc), (yr, yc), (zr, zc) = to_coord(x), to_coord(y), to_coord(z)
+    diagonal = xr != zr and xc != zc
+    for er in (-1, 1):
+      for ec in (-1, 1):
+        dr, dc = yr + er, yc + ec            # the piece waiting beside the gap
+        pr, pc = dr + er, dc + ec            # where a placement pushes it into the gap
+        if not (0 <= dr < 6 and 0 <= dc < 6 and 0 <= pr < 6 and 0 <= pc < 6):
+          continue                           # no room to place (the "extra step" the guide mentions)
+        d, placer = dr * 6 + dc, pr * 6 + pc
+        if d in (x, z):
+          continue                           # on a diagonal, two of the four neighbours are the pair itself
+        if any(max(abs(pr - r), abs(pc - c)) <= 1 for r, c in (to_coord(x), to_coord(z))):
+          continue                           # the placement would also shove our own pair away
+        (ldiag if diagonal else lortho).append((x, z, y, d, placer))
+  return ldiag, lortho
+
+LDIAGS, LORTHOS = build_L_shapes()
 
 def copy_board(b):
   return Board([row[:] for row in b.board], [h[:] for h in b.hands])
@@ -193,17 +214,17 @@ def evaluate(board,player):
       continue
     mine = (x > 0) == (play_sign > 0)
     directions = [2,-12,-2,12]
-    for i in directions:
-      if index + i >= 0 and index + i <= 35:
-        if flat[index + i] == flat[index + directions[(directions.index(i) + 1) % 4 - 1]] and flat[index + i] == x:
-          if mine:
-            value += LDIAG * abs(x)
+    for shapes, shape_bonus in ((LDIAGS, LDIAG), (LORTHOS, LORTHO)): ### Checks all boop-in THREEROWs
+      for end1, end2, gap, waiting, placement in shapes:
+        piece = flat[end1]
+        pieces_match = piece != 0 and piece == flat[end2] and piece == flat[waiting]
+        squares_open = flat[gap] == 0 and flat[placement] == 0
+        if pieces_match and squares_open:
+          is_mine = (piece > 0) == (play_sign > 0)
+          points = shape_bonus * abs(piece)
+          if is_mine:
+            value += points
           else:
-            value -= LDIAG * abs(x)
-        if flat[index + i] == flat[index + directions[(directions.index(i) + 1) % 4 - 1]//2] and flat[index + i] == x:
-          if mine:
-            value += LORTHO * abs(x)
-          else:
-            value -= LORTHO * abs(x)
+            value -= points
         
   return value
