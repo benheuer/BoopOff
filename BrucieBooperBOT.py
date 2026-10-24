@@ -268,7 +268,10 @@ class BrucieBooper(BoopBot):
         # safety
         if chosen not in legal_moves:
             return random.choice(legal_moves)
-
+        #more safety
+        if chosen not in board.get_legals(player):
+            return random.choice(board.get_legals(player))
+            
         return chosen
 
     def give_grow(self, grows, board, player):
