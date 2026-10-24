@@ -116,7 +116,68 @@ class BrucieBooper(BoopBot):
                                 value -= edgeVal * .75
     
             return value
+
+        def has_three(board1, current_player, piece_type=None):
+            # Check whether current_player has a completed line.
+            # piece_type: 1 = kitten, 2 = cat, None = either
+            target = current_player
     
+            for line in lines:
+                pieces = [
+                    board1.board[to_coord(pos)[0]][to_coord(pos)[1]]
+                    for pos in line
+                ]
+    
+                if all(
+                    piece == target * piece_kind
+                    for piece, piece_kind in zip(
+                        pieces,
+                        [piece_type] * 3 if piece_type is not None
+                        else [1 if p > 0 else -1 for p in pieces]
+                    )
+                ):
+                    return True
+
+        return False
+    
+        def has_three_of_type(board1, current_player, piece_type):
+            # More direct check for three identical cats or kittens.
+            target = current_player * piece_type
+    
+            for line in lines:
+                pieces = [
+                    board1.board[to_coord(pos)[0]][to_coord(pos)[1]]
+                    for pos in line
+                ]
+    
+                if all(piece == target for piece in pieces):
+                    return True
+    
+            return False
+    
+        def winning_moves(board1, current_player, legals, piece_type=None):
+            # Return legal moves that create a line of three.
+            winning = []
+    
+            for move1 in legals:
+                board2 = deepcopy(board1)
+                board2.play(move1)
+    
+                if piece_type is None:
+                    won = (
+                        has_three_of_type(board2, current_player, 1)
+                        or has_three_of_type(board2, current_player, 2)
+                    )
+                else:
+                    won = has_three_of_type(
+                        board2, current_player, piece_type
+                    )
+    
+                if won:
+                    winning.append(move1)
+    
+            return winning
+        
         def minimax(board1, depth, current_player, alpha, beta):
             # Get legal moves for the player whose turn it is
             legals = board1.get_legals(current_player)
@@ -174,28 +235,72 @@ class BrucieBooper(BoopBot):
     
                 return value
     
-        # Evaluate every possible first move
-        for move in moves:
-            board1 = deepcopy(board)
-            board1.play(move)
-    
-            value = minimax(
-                board1,
-                depth_limit - 1,
-                3 - player,
-                float("-inf"),
-                float("inf")
+            # Check whether the opponent can make three cats in a row
+            opponent = 3 - player
+            opponent_legals = board.get_legals(opponent)
+        
+            opponent_cat_wins = winning_moves(
+                board, opponent, opponent_legals, piece_type=2
             )
-    
-            results.append((value, move))
-    
-        # Choose randomly between equally good moves
-        dialogue = ["Take this!", "Clever phrase here!", "I coded a knockoff of your bot!", "Its final... brucieBooper WINS!!!", "WAHAHA", "You aren't ready for my specail attack.", "All options lead to your demise."]
-        print(random.choice(dialogue))
-        print("")
-        time.sleep(.2)
-        best = max(v for v, _ in results)
-        return random.choice([m for v, m in results if v == best])
+        
+            # If the opponent threatens a cat line, prioritize disrupting it.
+            if opponent_cat_wins:
+                results = []
+        
+                for move in moves:
+                    board1 = deepcopy(board)
+                    board1.play(move)
+        
+                    # See whether the opponent still has a winning cat move.
+                    remaining_legals = board1.get_legals(opponent)
+                    remaining_wins = winning_moves(
+                        board1, opponent, remaining_legals, piece_type=2
+                    )
+        
+                    # Minimize remaining opponent cat-winning moves,
+                    # then use minimax to break ties.
+                    value = -1000 * len(remaining_wins)
+        
+                    value += minimax(
+                        board1,
+                        depth_limit - 1,
+                        opponent,
+                        float("-inf"),
+                        float("inf")
+                    )
+        
+                    results.append((value, move))
+        
+                best = max(v for v, _ in results)
+                return random.choice([m for v, m in results if v == best])
+        
+            # No opponent cat threat: take an immediate line win if available.
+            immediate_wins = winning_moves(
+                board, player, moves
+            )
+        
+            if immediate_wins:
+                return random.choice(immediate_wins)
+        
+            # Otherwise, use ordinary minimax.
+            results = []
+        
+            for move in moves:
+                board1 = deepcopy(board)
+                board1.play(move)
+        
+                value = minimax(
+                    board1,
+                    depth_limit - 1,
+                    opponent,
+                    float("-inf"),
+                    float("inf")
+                )
+        
+                results.append((value, move))
+        
+            best = max(v for v, _ in results)
+            return random.choice([m for v, m in results if v == best])
             
     def give_grow(self, grows, board, player): #Finds first eligible grow - doesn't really care (its a weak bot for a reason)
 
