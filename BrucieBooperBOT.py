@@ -144,7 +144,8 @@ class BrucieBooper(BoopBot):
                 return value
     
             else:
-                # Minimize the AI's score: assume the opponent plays well
+                print("Hmm. This is tough.")
+                
                 value = float("inf")
     
                 for move1 in legals:
@@ -183,6 +184,10 @@ class BrucieBooper(BoopBot):
             results.append((value, move))
     
         # Choose randomly between equally good moves
+        dialogue = ["Take this!", "Clever phrase here!", "I coded a knockoff of your bot!", "Its final... brucieBooper WINS!!!", "WAHAHA", "You aren't ready for my specail attack.", "All options lead to your demise."]
+        print(random.choice(dialogue))
+        print("")
+        time.sleep(.2)
         best = max(v for v, _ in results)
         return random.choice([m for v, m in results if v == best])
             
@@ -193,11 +198,15 @@ class BrucieBooper(BoopBot):
             r, c = to_coord(locale[0] if kind == "grow" else locale)
 
             if board.board[r][c] > 0 and player == 2:
+                print("")
+                print("ataktoush")
                 time.sleep(.2)
                 time.sleep(.1)
                 return grow
 
             elif board.board[r][c] < 0 and player == 1:
+                print("")
+                print("parryrepostoush")
                 time.sleep(.2)
                 time.sleep(.1)
                 return grow
