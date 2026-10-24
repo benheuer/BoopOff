@@ -15,7 +15,7 @@ class BrucieBooper(BoopBot):
         lines = get_lines()
         results = []
 
-        edgeVal = .2
+        edgeVal = .03
         kittenVal = .1
         catVal = .28
         depth_limit = 3
@@ -91,6 +91,8 @@ class BrucieBooper(BoopBot):
     
                         if piece == 2:
                             value -= catVal
+                            if edge:
+                                value += edgeVal/2
     
                     elif player == 2:
                         if piece == -1:
@@ -103,6 +105,8 @@ class BrucieBooper(BoopBot):
     
                         if piece == -2:
                             value -= catVal
+                            if edge:
+                                value += edgeVal/.8
     
                         if piece == 2:
                             value += catVal * 1.2
@@ -144,7 +148,7 @@ class BrucieBooper(BoopBot):
                 return value
     
             else:
-                print("Hmm. This is tough.")
+                #print("Hmm. This is tough.")
                 
                 value = float("inf")
     
