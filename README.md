@@ -59,6 +59,7 @@ Use `CatGPT(search_depth=3)` to search our move, the opponent's reply, and our f
 ### BrucieBooperBOT.py ###
 
 This bot is the coolest bot out of all of the bots. It's pretty obvious who made it. It's a little chatty right now, so I hope that's OK. I might consider using AI just to get the formatting working, but I haven't yet.
+Update, I used an AI to get the board duplication and unnested value carrying or insert whatever technical term here you know what i mean set up. Of course, the logic and actual bot are still my own.
 
 ### Cat_astrophicBOT.py ###
 
