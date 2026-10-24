@@ -15,10 +15,12 @@ class BrucieBooper(BoopBot):
         lines = get_lines()
         results = []
 
+        EW=1.5
         edgeVal = .03
         kittenVal = .1
         catVal = .28
         depth_limit = 3
+        
 
         def evaluate(board1):
             value = 0
@@ -76,40 +78,40 @@ class BrucieBooper(BoopBot):
                     )
     
                     if player == 1:
-                        if piece == -1:
+                        if piece == -1: #own kit
                             value += kittenVal / 2
                             if edge:
                                 value -= edgeVal
     
-                        if piece == 1:
-                            value -= kittenVal
+                        if piece == 1: #enemy kit
+                            value -= kittenVal *EW
     
-                        if piece == -2:
-                            value += catVal * 1.2
+                        if piece == -2: #own cat
+                            value += catVal 
                             if edge:
                                 value -= edgeVal * .75
     
-                        if piece == 2:
-                            value -= catVal
+                        if piece == 2: #enemy cat
+                            value -= catVal * 1.2 *EW
                             if edge:
                                 value += edgeVal/2
     
                     elif player == 2:
-                        if piece == -1:
-                            value -= kittenVal
+                        if piece == -1: #enemy kit
+                            value -= kittenVal *EW
     
-                        if piece == 1:
+                        if piece == 1: #own kit
                             value += kittenVal / 2
                             if edge:
                                 value -= edgeVal
     
-                        if piece == -2:
-                            value -= catVal
+                        if piece == -2: #enemy cat
+                            value -= catVal * 1.2 *EW
                             if edge:
-                                value += edgeVal/.8
+                                value += edgeVal/2
     
-                        if piece == 2:
-                            value += catVal * 1.2
+                        if piece == 2: #own cat
+                            value += catVal 
                             if edge:
                                 value -= edgeVal * .75
     
