@@ -16,9 +16,9 @@ class BrucieBooper(BoopBot):
         results = []
 
         EW=1.5
-        edgeVal = .03
-        kittenVal = .1
-        catVal = .28
+        edgeVal = .003
+        kittenVal = .01
+        catVal = .028
         depth_limit = 3
         
 
