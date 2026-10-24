@@ -20,10 +20,37 @@ class BrucieBooper(BoopBot):
         kittenVal = .01
         catVal = .028
         depth_limit = 3
-        
 
-        def evaluate(board1):
-            value = 0
+    
+            # Precompute line coordinates once
+        line_coords = [
+            [to_coord(pos) for pos in line]
+            for line in lines
+        ]
+        def is_winning_move(board1):
+            winning_piece = -2 if player == 1 else 2
+            for coords in line_coords:
+                a = board1.board[coords[0][0]][coords[0][1]]
+                if a != winning_piece:
+                    continue
+                b = board1.board[coords[1][0]][coords[1][1]]
+                if b != winning_piece:
+                    continue
+                c = board1.board[coords[2][0]][coords[2][1]]
+                if c == winning_piece:
+                    return True
+            return False
+
+            # Take an immediate winning move before running minimax
+            for move in moves:
+                test_board = deepcopy(board)
+                test_board.play(move)
+        
+                if is_winning_move(test_board):
+                    return move
+                
+                def evaluate(board1):
+                    value = 0
     
             # Evaluate lines (original scoring logic preserved)
             for line in lines:
