@@ -49,8 +49,8 @@ class BrucieBooper(BoopBot):
                 if is_winning_move(test_board):
                     return move
             
-            def evaluate(board1):
-                value = 0
+        def evaluate(board1):
+            value = 0
     
             # Evaluate lines (original scoring logic preserved)
             for line in lines:
