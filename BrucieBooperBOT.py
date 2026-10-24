@@ -45,12 +45,12 @@ class BrucieBooper(BoopBot):
             for move in moves:
                 test_board = deepcopy(board)
                 test_board.play(move)
-        
+    
                 if is_winning_move(test_board):
                     return move
-                
-                def evaluate(board1):
-                    value = 0
+            
+            def evaluate(board1):
+                value = 0
     
             # Evaluate lines (original scoring logic preserved)
             for line in lines:
