@@ -113,7 +113,7 @@ class BrucieBooper(BoopBot):
         if depth == 0:
             return evaluate(board)
 
-        legals = board.get_legals(current_player)
+        legals = board.get_legals(current_player) or []
 
         # No legal moves: evaluate the resulting position
         if not legals:
@@ -166,7 +166,7 @@ class BrucieBooper(BoopBot):
             return best
 
         # Evaluate each possible opening move using the recursive search
-        for move in moves:
+        for move in (moves or []):
             board1 = deepcopy(board)
             board1.play(move)
     
