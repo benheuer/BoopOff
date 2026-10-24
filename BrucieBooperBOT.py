@@ -20,10 +20,10 @@ class BrucieBooper(BoopBot):
         enemy = 3 - player
 
         # Stronger tactical values
-        enemyLineVal = 10000
-        ownLineVal = 15000
-        catLineBonus = 5000
-        immediateWinVal = 100000
+        enemyLineVal = 1
+        ownLineVal = 1.5
+        catLineBonus = 5
+        immediateWinVal = 10
 
         def evaluate(board1):
             value = 0
@@ -119,7 +119,6 @@ class BrucieBooper(BoopBot):
             return value
 
         def has_line_of_three(board1, who):
-            """Check whether a player has a completed line of three."""
             for line in lines:
                 pieces = [
                     board1.board[to_coord(pos)[0]][to_coord(pos)[1]]
@@ -266,7 +265,7 @@ class BrucieBooper(BoopBot):
         best = max(v for v, _ in results)
         chosen = random.choice([m for v, m in results if v == best])
 
-        # Final safety check: never intentionally return an illegal move.
+        # safety
         if chosen not in legal_moves:
             return random.choice(legal_moves)
 
