@@ -180,7 +180,7 @@ class BrucieBooper(BoopBot):
         
         def minimax(board1, depth, current_player, alpha, beta):
             # Get legal moves for the player whose turn it is
-            legals = board1.get_legals(current_player)
+            legals = board1.get_legals(current_player) or []
     
             # Stop searching at the depth limit or a terminal position
             if depth == 0 or not legals:
@@ -237,7 +237,7 @@ class BrucieBooper(BoopBot):
     
             # Check whether the opponent can make three cats in a row
             opponent = 3 - player
-            opponent_legals = board.get_legals(opponent)
+            opponent_legals = board.get_legals(opponent) or []
         
             opponent_cat_wins = winning_moves(
                 board, opponent, opponent_legals, piece_type=2
@@ -252,7 +252,7 @@ class BrucieBooper(BoopBot):
                     board1.play(move)
         
                     # See whether the opponent still has a winning cat move.
-                    remaining_legals = board1.get_legals(opponent)
+                    remaining_legals = board1.get_legals(opponent) or []
                     remaining_wins = winning_moves(
                         board1, opponent, remaining_legals, piece_type=2
                     )
