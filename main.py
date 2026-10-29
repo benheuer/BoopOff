@@ -180,7 +180,7 @@ def ask_games(bot1, bot2):
             return 1
         if answer.isdigit() and int(answer) >= 1:
             return int(answer)
-        print("Enter a whole number of 1 or more.")
+        print("Enter a positive integer.")
 
 def run_many(blue, orange, games):
     """Plays `games` silent games (fresh bots each time) and prints the win percentages."""

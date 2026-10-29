@@ -109,19 +109,22 @@ def finish_turn(board, player):
 
 ### Value Outputs for Each Situation ###
 
-WIN = 1000000000000000000000000000000
+WIN = 1000000000000000000
 
 TWOBYTWO = 15
-TWOSEP = 3
-THREEROW = 25
-CATS = 45
-OPPCATSINHAND = 25
-KITTENS = 8
-OPPPIECEONBOARD = 10
-PROTECTED = 5
+TWOSEP = 4
+THREEROW = 18
+CATS = 75
+OPPCATSINHAND = 75
+KITTENS = 12
+OPPPIECEONBOARD = 12
+PROTECTED = 7
 
 LDIAG = 7
-LORTHO = 10
+LORTHO = 8
+
+LDIAG_PAIRS  = [((0,2),(-2,0)), ((-2,0),(0,-2)), ((0,-2),(2,0)), ((2,0),(0,2))]
+LORTHO_PAIRS = [((0,1),(-1,0)), ((-1,0),(0,-1)), ((0,-1),(1,0)), ((1,0),(0,1))]
 
 LINES = get_lines()
 LINE_IDX = [tuple(l) for l in LINES]   # flat indices (row*6+col), computed once
@@ -142,13 +145,11 @@ def evaluate(board,player):
     b = flat[j]
     c = flat[k]
 
-    if a == b and b == c:
-      if a == 0:
-        continue
+    if a != 0 and b != 0 and c != 0 and (a > 0) == (b > 0) == (c > 0):
       mine = (a > 0) == (play_sign > 0)
-      if abs(a) == 2:
+      if abs(a) == abs(b) == abs(c) == 2:
         value += WIN if mine else -WIN
-      value += THREEROW if mine else -THREEROW
+      value += THREEROW * abs(a) if mine else -THREEROW * abs(a)
     elif a == b or b == c:
       if b != 0:
         if (b > 0) == (play_sign > 0):
@@ -188,22 +189,16 @@ def evaluate(board,player):
           else:
             value -= PROTECTED * abs(x)
 
-  for index, x in enumerate(flat):
-    if x == 0:
-      continue
-    mine = (x > 0) == (play_sign > 0)
-    directions = [2,-12,-2,12]
-    for i in directions:
-      if index + i >= 0 and index + i <= 35:
-        if flat[index + i] == flat[index + directions[(directions.index(i) + 1) % 4 - 1]] and flat[index + i] == x:
-          if mine:
-            value += LDIAG * abs(x)
-          else:
-            value -= LDIAG * abs(x)
-        if flat[index + i] == flat[index + directions[(directions.index(i) + 1) % 4 - 1]//2] and flat[index + i] == x:
-          if mine:
-            value += LORTHO * abs(x)
-          else:
-            value -= LORTHO * abs(x)
+    for index, x in enumerate(flat):
+      if x == 0:
+        continue
+      r, c = to_coord(index)
+      mine = (x > 0) == (play_sign > 0)
+      for pairs, weight in ((LDIAG_PAIRS, LDIAG), (LORTHO_PAIRS, LORTHO)):
+        for (r1, c1), (r2, c2) in pairs:
+          ar, ac, br, bc = r + r1, c + c1, r + r2, c + c2
+          if 0 <= ar <= 5 and 0 <= ac <= 5 and 0 <= br <= 5 and 0 <= bc <= 5:
+            if flat[ar * 6 + ac] == x and flat[br * 6 + bc] == x:
+              value += weight * abs(x) if mine else -weight * abs(x)
         
   return value
